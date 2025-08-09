@@ -8,31 +8,30 @@ from .models import User, Theater, Screen, Seat, Movie, Show, Booking, BookedSea
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    """
-    Serializer for user registration with password confirmation.
-    """
-    password = serializers.CharField(write_only=True, min_length=8)
+    #Serializer for user registration with password confirmation.
+
+    password = serializers.CharField(write_only=True, min_length=4) #write-only true means it can not be GET
     password_confirm = serializers.CharField(write_only=True)
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'password', 'password_confirm')
-    
+        fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'role', 'password', 'password_confirm') #tells which fields to expect from user
+        read_only_fields = ('role',)  # Users can't set role on signup unless you want them to
+
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
         return attrs
     
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
+        validated_data.pop('password_confirm') #dont store password_confirm
         user = User.objects.create_user(**validated_data)
         return user
 
 
 class UserLoginSerializer(serializers.Serializer):
-    """
-    Serializer for user authentication.
-    """
+    #Serializer for user authentication.
+
     username = serializers.CharField()
     password = serializers.CharField()
     
@@ -54,9 +53,8 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """
-    Serializer for user profile information.
-    """
+    #Serializer for user profile information.
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone', 'role', 'date_joined')
@@ -64,21 +62,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class TheaterSerializer(serializers.ModelSerializer):
-    """
-    Serializer for theater information.
-    """
+    #Serializer for theater information.
+
     class Meta:
         model = Theater
-        fields = ('id', 'name', 'location', 'total_screens')
+        fields = ('id', 'name', 'city', 'location', 'total_screens')
 
 
 class SeatSerializer(serializers.ModelSerializer):
-    """
-    Serializer for seat information.
-    """
+    #Serializer for seat information.
+    
     class Meta:
         model = Seat
-        fields = ('id', 'seat_number', 'seat_type')
+        fields = ('id', 'seat_number')
 
 
 class ScreenSerializer(serializers.ModelSerializer):
@@ -90,7 +86,7 @@ class ScreenSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Screen
-        fields = ('id', 'screen_number', 'theater', 'theater_name', 'seat_layout', 'seats')
+        fields = ('id','screen_number','theater', 'theater_name', 'seat_layout', 'seats')
 
 
 class MovieListSerializer(serializers.ModelSerializer):
@@ -102,8 +98,7 @@ class MovieListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Movie
-        fields = ('id', 'title', 'genre', 'language', 'duration', 'rating', 
-                 'poster_url', 'release_date', 'average_rating', 'total_reviews')
+        fields = ('id', 'name', 'genre','poster', 'release_date', 'average_rating', 'total_reviews')
 
 
 class MovieDetailSerializer(serializers.ModelSerializer):
@@ -116,8 +111,8 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Movie
-        fields = ('id', 'title', 'description', 'genre', 'language', 'duration', 
-                 'rating', 'poster_url', 'release_date', 'average_rating', 
+        fields = ('id', 'name', 'description', 'genre', 'language', 'duration', 
+                 'poster', 'release_date', 'average_rating', 
                  'total_reviews', 'reviews')
     
     def get_reviews(self, obj):
@@ -129,18 +124,19 @@ class ShowListSerializer(serializers.ModelSerializer):
     """
     Serializer for show listings with basic information.
     """
-    movie_title = serializers.CharField(source='movie.title', read_only=True)
-    movie_poster = serializers.CharField(source='movie.poster_url', read_only=True)
+    movie_title = serializers.CharField(source='movie.name', read_only=True)
+    # movie_poster = serializers.ImageField(source='movie.poster', read_only=True)
     theater_name = serializers.CharField(source='screen.theater.name', read_only=True)
-    theater_location = serializers.CharField(source='screen.theater.location', read_only=True)
+    movie_duration = serializers.IntegerField(source='movie.duration', read_only=True)
+    theater_city = serializers.CharField(source='screen.theater.city', read_only=True)
     screen_number = serializers.CharField(source='screen.screen_number', read_only=True)
     available_seats_count = serializers.SerializerMethodField()
     total_seats = serializers.ReadOnlyField()
     
     class Meta:
         model = Show
-        fields = ('id', 'movie', 'movie_title', 'movie_poster', 'screen', 
-                 'theater_name', 'theater_location', 'screen_number', 
+        fields = ('id', 'movie', 'movie_title', 'screen', 'movie_duration'
+                 'theater_name', 'theater_city', 'screen_number', 
                  'show_time', 'price_per_seat', 'available_seats_count', 'total_seats')
     
     def get_available_seats_count(self, obj):
@@ -240,11 +236,11 @@ class BookedSeatSerializer(serializers.ModelSerializer):
     Serializer for booked seat information.
     """
     seat_number = serializers.CharField(source='seat.seat_number', read_only=True)
-    seat_type = serializers.CharField(source='seat.seat_type', read_only=True)
+    # seat_type = serializers.CharField(source='seat.seat_type', read_only=True)
     
     class Meta:
         model = BookedSeat
-        fields = ('seat', 'seat_number', 'seat_type')
+        fields = ('seat', 'seat_number')
 
 
 class BookingSerializer(serializers.ModelSerializer):

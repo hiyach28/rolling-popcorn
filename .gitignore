@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+bolturl.py/
+boltview.py/
+# Environment
+.env
+
+# Django
+staticfiles/
+media/
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+
+#superuser-> email: admin@gmail.com, username: hiya, password: 123
