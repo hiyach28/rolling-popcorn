@@ -9,7 +9,9 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import login
+from django.db.models import Q, Avg
 from django.utils import timezone
+from datetime import timedelta
 
 import json
 
@@ -20,6 +22,9 @@ from .serializers import (
     ShowListSerializer, ShowDetailSerializer, BookingCreateSerializer, 
     BookingSerializer, ReviewSerializer, ReviewCreateSerializer
 )
+
+from .utils import SeatLockManager
+
 
 class UserRegistrationView(generics.CreateAPIView):
     """
@@ -125,7 +130,7 @@ class MovieListView(generics.ListAPIView):
         
         # Filter by theater location if provided
         theater_city = self.request.query_params.get('theater_city')
-        if theater_city:
+        if theater_location:
             queryset = queryset.filter(
                 shows__screen__theater__city__icontains=theater_city
             ).distinct()

@@ -36,7 +36,7 @@ urlpatterns = [
     path('reviews/create/', views.ReviewCreateView.as_view(), name='review-create'),
     
     # Admin endpoints
-    path('admin/movies/create/', views.AdminMovieCreateView.as_view(), name='admin-movie-create'),
-    path('admin/theaters/create/', views.AdminTheaterCreateView.as_view(), name='admin-theater-create'),
-    path('admin/shows/create/', views.AdminShowCreateView.as_view(), name='admin-show-create'),
+    path('dashboard/movies/create/', views.AdminMovieCreateView.as_view(), name='admin-movie-create'),
+    path('dashboard/theaters/create/', views.AdminTheaterCreateView.as_view(), name='admin-theater-create'),
+    path('dashboard/shows/create/', views.AdminShowCreateView.as_view(), name='admin-show-create'),
 ]
