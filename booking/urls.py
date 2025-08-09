@@ -17,7 +17,7 @@ urlpatterns = [
     path('theaters/', views.TheaterListView.as_view(), name='theater-list'),
     
     # Movie endpoints
-    path('movies/', views.MovieListView.as_view(), name='movie-list'),
+    path('home/', views.MovieListView.as_view(), name='movie-list'), #home page
     path('movies/<int:pk>/', views.MovieDetailView.as_view(), name='movie-detail'),
     path('movies/<int:movie_id>/reviews/', views.MovieReviewsView.as_view(), name='movie-reviews'),
     
