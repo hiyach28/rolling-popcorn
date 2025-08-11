@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Select Seats - Rolling Popcorn</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+<style>
+  body {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #141414;
+  }
+  #logo {
+    height: 70px;
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+  }
+  nav ul li a {
+    background-color: #e50914;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  nav ul li a:hover {
+    background-color: #f40612;
+  }
+
+  .seat-layout {
+    max-width: 900px;
+    margin: 30px auto;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+  }
+  #seat-container {
+    display: grid;
+    grid-gap: 15px;
+    justify-content: center;
+  }
+  .seat {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #555;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    user-select: none;
+    font-size: 1.2rem;
+  }
+  .seat:hover {
+    transform: scale(1.15);
+  }
+  .booked {
+    background-color: #b82a2a;
+    cursor: not-allowed;
+  }
+  .selected {
+    background-color: #2ab84a;
+  }
+  .vip {
+    border: 3px solid gold;
+  }
+
+  .summary-box {
+    background: #111;
+    padding: 25px 30px;
+    border-radius: 10px;
+    width: 280px;
+    border: 1px solid #c8102e;
+    text-align: center;
+  }
+  .summary-box h3 {
+    margin-top: 0;
+    color: #c8102e;
+    margin-bottom: 15px;
+  }
+  .summary-box p {
+    font-size: 1.1rem;
+    margin: 8px 0;
+  }
+  .confirm-btn {
+    background-color: #c8102e;
+    color: white;
+    padding: 12px;
+    border: none;
+    width: 100%;
+    font-size: 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  .confirm-btn:hover {
+    background-color: #a50e23;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img id="logo" src="assets/rollingpopcornlogo.png" alt="Rolling Popcorn Logo" />
+  <nav>
+    <ul>
+      <li><a href="#">Location</a></li>
+      <li><a href="#">Sign In</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="seat-layout">
+  <div>
+    <div id="seat-container"></div>
+  </div>
+
+  <div class="summary-box">
+    <h3>Payment Summary</h3>
+    <p><strong>Movie:</strong> <span id="movie-title">Loading...</span></p>
+    <p><strong>Seats Selected:</strong> <span id="seat-count">0</span></p>
+    <p><strong>Total Price:</strong> ₹<span id="total-price">0</span></p>
+    <button id="confirm-btn" class="confirm-btn">Confirm Seats</button>
+  </div>
+</div>
+
+<script>
+  const seatPrice = 250;
+  let selectedSeats = [];
+
+  // Simulated movie info from localStorage or default fallback
+  const movieData = JSON.parse(localStorage.getItem("selectedMovie")) || { title: "Demo Movie" };
+  document.getElementById("movie-title").textContent = movieData.title;
+
+  // Dummy seat layout: 5 rows, 10 columns, with aisles (no gaps here, simplified)
+  const rows = 5;
+  const columns = 10;
+
+  const container = document.getElementById("seat-container");
+  container.style.gridTemplateColumns = `repeat(${columns}, 60px)`;
+
+  // Generate seats
+  for(let r = 1; r <= rows; r++) {
+    for(let c = 1; c <= columns; c++) {
+      const seatDiv = document.createElement("div");
+      seatDiv.classList.add("seat");
+
+      // Label seats like A1, A2, ..., E10
+      const seatLabel = String.fromCharCode(64 + r) + c;
+      seatDiv.textContent = seatLabel;
+
+      // Randomly mark some seats as booked (20%)
+      const isBooked = Math.random() < 0.2;
+      if (isBooked) {
+        seatDiv.classList.add("booked");
+      }
+
+      // Mark first 2 seats in each row as VIP
+      if (c <= 2) seatDiv.classList.add("vip");
+
+      seatDiv.onclick = () => {
+        if (seatDiv.classList.contains("booked")) return;
+        if (seatDiv.classList.contains("selected")) {
+          seatDiv.classList.remove("selected");
+          selectedSeats = selectedSeats.filter(s => s !== seatLabel);
+        } else {
+          seatDiv.classList.add("selected");
+          selectedSeats.push(seatLabel);
+        }
+        updateSummary();
+      };
+
+      container.appendChild(seatDiv);
+    }
+  }
+
+  function updateSummary() {
+    document.getElementById("seat-count").textContent = selectedSeats.length;
+    document.getElementById("total-price").textContent = selectedSeats.length * seatPrice;
+  }
+
+  document.getElementById("confirm-btn").onclick = () => {
+    if (selectedSeats.length === 0) {
+      alert("Please select at least one seat!");
+      return;
+    }
+    localStorage.setItem("bookingSummary", JSON.stringify({
+      movieTitle: movieData.title,
+      seats: selectedSeats,
+      totalAmount: selectedSeats.length * seatPrice
+    }));
+    window.location.href = "payment.html";
+  };
+</script>
+
+</body>
+</html>

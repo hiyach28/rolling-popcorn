@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Movie Details</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #141414;
+    flex-wrap: wrap;
+  }
+
+  #logo {
+    height: 70px;
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+    background-color: #222;
+    padding: 5px 10px;
+    border-radius: 5px;
+    flex: 1;
+    max-width: 400px;
+    margin: 10px;
+  }
+
+  .search-icon {
+    color: #fff;
+    margin-right: 5px;
+  }
+
+  .search-bar {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    flex: 1;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+  }
+
+  nav ul li a {
+    background-color: #e50914;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+    cursor: pointer;
+  }
+
+  nav ul li a:hover {
+    background-color: #f40612;
+  }
+
+  /* Slideshow */
+  .slideshow-container {
+    position: relative;
+    max-width: 100%;
+    margin: auto;
+    overflow: hidden;
+  }
+
+  .mySlides {
+    display: none;
+  }
+
+  .slideshow-img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+  }
+
+  .prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    transition: 0.3s;
+    border-radius: 3px;
+    user-select: none;
+    background-color: rgba(0,0,0,0.4);
+  }
+
+  .next { right: 0; }
+  .prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.8);
+  }
+
+  /* Dots */
+  .dots {
+    text-align: center;
+    margin: 10px 0;
+  }
+  .dot {
+    cursor: pointer;
+    height: 12px;
+    width: 12px;
+    margin: 0 3px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.4s ease;
+  }
+  .active, .dot:hover {
+    background-color: #e50914;
+  }
+
+  /* Red-black strip */
+  .slideshow-separator {
+    background: linear-gradient(to right, #e50914, #000);
+    height: 8px;
+    width: 100%;
+  }
+
+  .now-showing-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 50 20px;
+  text-align: center;  /* centers inline elements inside */
+}
+
+
+.now_showing_heading {
+  font-size: 30px;
+  display: inline-block;
+  margin: 20px auto 10px auto;  /* top, horizontal auto centers it */
+  text-align: center;
+}
+
+
+
+  /* Posters grid */
+  .gallery-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px; /* optional: limit the width of the entire gallery */
+  margin: auto;      /* center align on wide screens */
+}
+
+  .movie-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #141414;
+  border-radius: 6px;
+  overflow: hidden; /* ensures image corners respect border radius */
+  text-align: center;
+  color: white;
+  text-decoration: none;
+  transition: transform 0.3s;
+}
+  .movie-card img {
+  width: 100%;         /* fills container width */
+  height: 100%;        /* fills container height */
+  aspect-ratio: 2/3;   /* maintains poster-like shape */
+  object-fit: cover;   /* scales and crops to fill */
+  border-radius: 6px 6px 0 0;
+  display: block;      /* removes inline spacing gaps */
+}
+
+  .movie-title {
+    font-weight: bold;
+    padding: 5px;
+  }
+  .movie-lang {
+    color: #aaa;
+    padding-bottom: 5px;
+  }
+  .movie-card:hover {
+    transform: scale(1.05);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .gallery-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 500px) {
+    .gallery-container {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 60px;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.85);
+  }
+  .modal-content {
+    background-color: #1a1a1a;
+    margin: auto;
+    padding: 20px;
+    border: 2px solid #e50914;
+    width: 300px;
+    text-align: center;
+    color: white;
+    border-radius: 8px;
+  }
+  .modal-content img {
+    width: 80%;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: transform 0.2s;
+  }
+  .modal-content img:hover {
+    transform: scale(1.05);
+  }
+  .location-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 15px;
+  }
+
+  .location-icons img {
+    width: 50px; /* smaller size */
+    height: 50px;
+    filter: brightness(0) invert(1); /* makes icons white */
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .location-icons img:hover {
+    transform: scale(1.1);
+  }
+
+  #signinModal .modal-content {
+    background:#141414;
+    color:white;
+    max-width:400px;
+    padding:30px 25px 40px 25px;
+    border-radius:8px;
+    position:relative;
+    top:20%;
+    box-shadow: 0 0 20px rgba(229,9,20,0.7);
+  }
+
+  #signinModal .signin-form input {
+    background:#333;
+    border:none;
+    border-radius:4px;
+    padding:12px 15px;
+    color:white;
+    font-size:16px;
+    margin-bottom:15px;
+  }
+  #signinModal .signin-form input::placeholder {
+    color:#888;
+  }
+  #signinModal .signin-form button {
+    background:#e50914;
+    border:none;
+    border-radius:4px;
+    padding:12px;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:16px;
+    transition: background-color 0.3s ease;
+  }
+  #signinModal .signin-form button:hover {
+    background:#f40612;
+  }
+  #signinModal .modal-content .close {
+    color:#bbb;
+  }
+  #signinModal .modal-content .close:hover {
+    color:#e50914;
+  }
+  #signinModal a:hover {
+    text-decoration: underline;
+  }
+
+  .close {
+    color: #e50914;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .movie-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .movie-card:hover {
+            transform: scale(1.02);
+        }
+        .movie-poster {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: #ddd;
+        }
+        .movie-info {
+            padding: 0.8rem;
+        }
+        .movie-title {
+            font-size: 1rem;
+            margin: 0 0 0.5rem;
+            font-weight: bold;
+        }
+        .movie-date {
+            color: #777;
+            font-size: 0.85rem;
+        }
+</style>
+</head>
+<body>
+
+<header>
+  <img id="logo" alt="rollingpopcornlogo" src="assets/rollingpopcornlogo.png">
+  <div class="search">
+    <span class="search-icon material-symbols-outlined">search</span>
+    <input type="search" class="search-bar" placeholder="Search for Movies here...">
+  </div>
+  <nav>
+    <ul>
+      <li><a id="openModalBtn">Location</a></li>
+      <li><a href="#" id="signinBtn">Sign In</a></li>
+
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <div class="movie-card">
+    <img id="moviePoster" src="" alt="Movie Poster" class="poster" />
+    <div class="movie-details">
+      <h2 id="movieTitle"></h2>
+      <div class="rating" id="movieRating"></div>
+      <p id="movieLanguages"></p>
+      <p id="movieDuration"></p>
+      <p id="movieReleaseDate"></p>
+      <p id="movieGenres"></p>
+      <button class="book-btn" id="bookTicketsBtn">Book Tickets</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="about">About</button>
+    <button class="tab-btn" data-tab="reviews">Reviews</button>
+  </div>
+
+  <div id="about" class="tab-content active">
+    <p id="movieDescription"></p>
+  </div>
+
+  <div id="reviews" class="tab-content">
+    <div class="review-form">
+      <input type="text" id="reviewerName" placeholder="Your Name" required />
+      <textarea id="reviewText" rows="3" placeholder="Write your review..." required></textarea>
+      <button id="submitReview">Submit Review</button>
+    </div>
+    <div class="review-list" id="reviewList"></div>
+  </div>
+</main>
+
+<!-- Location Modal -->
+<div id="locationModal" class="modal">...</div>
+
+<!-- Sign In Modal -->
+<div id="signinModal" class="modal">...</div>
+
+<script>
+// ===== CONFIG =====
+const API_BASE = "http://localhost:8000/api"; // adjust to your backend URL
+const MOVIE_ID = new URLSearchParams(window.location.search).get("id") || 1; // get from query params
+
+// ===== FETCH MOVIE DETAILS =====
+async function loadMovie() {
+  const res = await fetch(`${API_BASE}/movies/${MOVIE_ID}/`);
+  const movie = await res.json();
+
+  document.getElementById("moviePoster").src = movie.poster_url;
+  document.getElementById("movieTitle").textContent = movie.title;
+  document.getElementById("movieRating").innerHTML = `<span class="star">★</span> ${movie.rating} (${movie.votes} votes)`;
+  document.getElementById("movieLanguages").innerHTML = `<strong>Languages:</strong> ${movie.languages.join(", ")}`;
+  document.getElementById("movieDuration").innerHTML = `<strong>Duration:</strong> ${movie.duration}`;
+  document.getElementById("movieReleaseDate").innerHTML = `<strong>Release Date:</strong> ${movie.release_date}`;
+  document.getElementById("movieGenres").innerHTML = `<strong>Genres:</strong> ${movie.genres.join(", ")}`;
+  document.getElementById("movieDescription").textContent = movie.description;
+}
+
+// ===== FETCH REVIEWS =====
+async function loadReviews() {
+  const res = await fetch(`${API_BASE}/movies/${MOVIE_ID}/reviews/`);
+  const reviews = await res.json();
+  const reviewList = document.getElementById("reviewList");
+  reviewList.innerHTML = "";
+  reviews.forEach(r => {
+    const el = document.createElement("div");
+    el.classList.add("review");
+    el.innerHTML = `<strong>${r.name}</strong><br>${r.text}<br><small>${new Date(r.created_at).toLocaleString()}</small>`;
+    reviewList.appendChild(el);
+  });
+}
+
+// ===== SUBMIT REVIEW =====
+document.getElementById("submitReview").addEventListener("click", async () => {
+  const name = document.getElementById("reviewerName").value.trim();
+  const text = document.getElementById("reviewText").value.trim();
+  if (!name || !text) return alert("Please fill out both fields.");
+
+  await fetch(`${API_BASE}/movies/${MOVIE_ID}/reviews/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, text })
+  });
+
+  document.getElementById("reviewerName").value = "";
+  document.getElementById("reviewText").value = "";
+  loadReviews();
+});
+
+// ===== TAB SWITCHING =====
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+});
+
+// ===== INIT =====
+loadMovie();
+loadReviews();
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment - Rolling Popcorn</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #141414;
+            flex-wrap: wrap;
+        }
+
+        #logo {
+            height: 70px;
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            background-color: #222;
+            padding: 5px 10px;
+            border-radius: 5px;
+            flex: 1;
+            max-width: 400px;
+            margin: 10px;
+        }
+
+        .search-icon {
+            color: #fff;
+            margin-right: 5px;
+        }
+
+        .search-bar {
+            border: none;
+            outline: none;
+            background: transparent;
+            color: white;
+            flex: 1;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li a {
+            background-color: #e50914;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        nav ul li a:hover {
+            background-color: #f40612;
+        }
+
+        /* Payment Container */
+        .payment-container {
+            background: linear-gradient(145deg, #000000, #8b0000);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            margin: 3rem auto;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .payment-container h2 {
+            color: #ffcc00;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            word-wrap: break-word;
+        }
+
+        /* Button */
+        .book-btn {
+            background-color: #ff0000;
+            border: none;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .book-btn:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img id="logo" alt="rollingpopcornlogo" src="assets/rollingpopcornlogo.png" />
+    <div class="search">
+        <span class="search-icon material-symbols-outlined">search</span>
+        <input type="search" class="search-bar" placeholder="Search for Movies here..." />
+    </div>
+    <nav>
+        <ul>
+            <li><a id="openModalBtn">Location</a></li>
+            <li><a href="#" id="signinBtn">Sign In</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="payment-container">
+    <h2>Booking Summary</h2>
+    <div class="summary" id="summary">
+        Loading booking details...
+    </div>
+</div>
+
+<script>
+    // Get booking data from localStorage saved from seat selection page
+    const bookingSummary = JSON.parse(localStorage.getItem("bookingSummary"));
+
+    const summaryDiv = document.getElementById("summary");
+
+    if (!bookingSummary) {
+        summaryDiv.innerHTML = `<p>No booking found. Please select your seats first.</p>`;
+    } else {
+        // Show full booking summary
+        summaryDiv.innerHTML = `
+            <p><strong>Movie:</strong> ${bookingSummary.movieTitle}</p>
+            <p><strong>Seats:</strong> ${bookingSummary.seats.join(", ")}</p>
+            <p><strong>Total Price:</strong> ₹${bookingSummary.totalAmount}</p>
+            <button class="book-btn" id="payBtn">Proceed to Pay</button>
+        `;
+
+        // Payment button click handler
+        document.getElementById("payBtn").addEventListener("click", () => {
+            fetch("/api/book_ticket/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: JSON.stringify({
+                    movie_id: bookingSummary.movieId || null, // fallback null if no ID
+                    seats: bookingSummary.seats,
+                    total: bookingSummary.totalAmount
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Booking confirmed! Booking ID: " + data.booking_id);
+                    localStorage.removeItem("bookingSummary");
+                    localStorage.removeItem("selectedMovie");
+                    window.location.href = "/";
+                } else {
+                    alert("Booking failed. Please try again.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error occurred during booking. Please try again.");
+            });
+        });
+    }
+
+    // CSRF token helper for Django
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Existing modal and signin JS below (unchanged from your original code)...
+
+    // Modal handling example
+    /*
+    const modal = document.getElementById("locationModal");
+    const btn = document.getElementById("openModalBtn");
+    const span = document.querySelector(".close");
+
+    btn.onclick = function () {
+      modal.style.display = "block";
+    };
+
+    span.onclick = function () {
+      modal.style.display = "none";
+    };
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+    */
+
+    // Your existing signin modal JS here if needed
+
+</script>
+</body>
+</html>
