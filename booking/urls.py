@@ -36,8 +36,11 @@ urlpatterns = [
     path('reviews/create/', views.ReviewCreateView.as_view(), name='review-create'),
     
     # Admin endpoints
+    path('manager/dashboard/', views.theater_manager_dashboard, name='theater-dashboard'),
     path('dashboard/movies/create/', views.AdminMovieCreateView.as_view(), name='admin-movie-create'),
     path('dashboard/theaters/create/', views.AdminTheaterCreateView.as_view(), name='admin-theater-create'),
     path('dashboard/shows/create/', views.AdminShowCreateView.as_view(), name='admin-show-create'),
     path('dashboard/bulk-add-shows/', views.BulkAddShowAPIView.as_view(), name='bulk-add-shows')
+
+
 ]

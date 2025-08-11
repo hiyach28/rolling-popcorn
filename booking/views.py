@@ -14,6 +14,10 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from .utils import generate_random_showtimes
 
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
 import json
 
 from .models import User, Theater, Screen, Movie, Show, Booking, Review, TheatreManager
@@ -455,3 +459,15 @@ class BulkAddShowAPIView(APIView):
             )
 
         return Response({"message": message}, status=status.HTTP_201_CREATED)
+    
+
+@login_required
+def theater_manager_dashboard(request):
+    # Check if user is a theater manager
+    if request.user.role != 'admin':
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    return render(request, 'booking/dashboard.html', {
+        'user': request.user,
+        'api_base': request.build_absolute_uri('/')[:-1]  # Remove trailing slash
+    })
