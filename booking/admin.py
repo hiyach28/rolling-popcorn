@@ -10,13 +10,13 @@ print("Booking admin.py loaded")
 class UserAdmin(BaseUserAdmin):
     # Fields shown in list view
     list_display = ('email', 'name', 'role', 'is_staff', 'is_active')
-    search_fields = ('email', 'name')
+    search_fields = ('email', 'username', 'first_name', 'last_name')
     list_filter = ('role', 'is_staff', 'is_active')
 
     # Fields shown when viewing/editing a user
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal Info', {'fields': ('name', 'phone', 'role')}),
+        (None, {'fields': ('username', 'email', 'password')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'phone', 'role')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
     )
 
@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'name', 'password1', 'password2', 'role'),
+            'fields': ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'role'),
         }),
     )
     ordering = ('-created_at',) #ordred by latest users created on top
