@@ -19,9 +19,10 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, null=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.first_name} {self.last_name}: ({self.role})"
+        
 
     
 
@@ -91,7 +92,6 @@ class Movie(models.Model):
         db_table = 'movies'
         indexes = [
             models.Index(fields=['name']),  # For title searches
-            models.Index(fields=['genre']),  # For genre filtering
             models.Index(fields=['language']),  # For language filtering
             models.Index(fields=['release_date']),  # For date filtering
         ]

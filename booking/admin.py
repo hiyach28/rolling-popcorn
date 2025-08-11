@@ -29,6 +29,10 @@ class UserAdmin(BaseUserAdmin):
     )
     ordering = ('-created_at',) #ordred by latest users created on top
 
+    def name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+    name.short_description = 'Full Name'
+
 class ScreenInline(admin.TabularInline):
     """
     Inline admin for screens within theater admin.
@@ -86,8 +90,8 @@ class MovieAdmin(admin.ModelAdmin):
     """
     Movie admin with rich display and filtering options.
     """
-    list_display = ('name', 'genre', 'language', 'duration', 'release_date', 'average_rating', 'total_reviews')
-    list_filter = ('genre', 'language', 'release_date', 'genre')
+    list_display = ('name', 'display_genres', 'language', 'duration', 'release_date', 'average_rating', 'total_reviews')
+    list_filter = ('genres', 'language', 'release_date')
     search_fields = ('name', 'description')
     date_hierarchy = 'release_date'
     
@@ -96,9 +100,13 @@ class MovieAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'poster')
         }),
         ('Movie Details', {
-            'fields': ('duration', 'genre', 'language', 'release_date')
+            'fields': ('duration', 'genres', 'language', 'release_date')
         }),
     )
+
+    def display_genres(self, obj):
+        return ", ".join([genre.name for genre in obj.genres.all()])
+    display_genres.short_description = 'Genres'
 
     def average_rating(self, obj):
         avg = obj.average_rating
@@ -123,7 +131,7 @@ class ShowAdmin(admin.ModelAdmin):
     Show admin with booking statistics.
     """
     list_display = ('movie', 'screen', 'show_time', 'price_per_seat', 'occupancy_rate')
-    list_filter = ('show_time', 'screen__theater', 'movie__genre')
+    list_filter = ('show_time', 'screen__theater', 'movie__genres')
     search_fields = ('movie__title', 'screen__theater__name')
     date_hierarchy = 'show_time'
     
@@ -161,7 +169,7 @@ class ReviewAdmin(admin.ModelAdmin):
     Review admin for managing user reviews and ratings.
     """
     list_display = ('user', 'movie', 'rating', 'review_date', 'has_review_text')
-    list_filter = ('rating', 'review_date', 'movie__genre')
+    list_filter = ('rating', 'review_date', 'movie__genres')
     search_fields = ('user__username', 'movie__name', 'review_text')
     date_hierarchy = 'review_date'
     
