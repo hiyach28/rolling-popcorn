@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User, Theater, Screen, Seat, Movie, Show, Booking, BookedSeat, Review
+from .models import User, Theater, Screen, Seat, Movie, Show, Booking, BookedSeat, Review, Genre
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -89,16 +89,22 @@ class ScreenSerializer(serializers.ModelSerializer):
         fields = ('id','screen_number','theater', 'theater_name', 'seat_layout', 'seats')
 
 
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = '__all__'
+
 class MovieListSerializer(serializers.ModelSerializer):
     """
     Serializer for movie list view with basic information.
     """
     average_rating = serializers.ReadOnlyField()
     total_reviews = serializers.ReadOnlyField()
+    genres = GenreSerializer(many=True, read_only=True)
     
     class Meta:
         model = Movie
-        fields = ('id', 'name', 'genre','poster', 'release_date', 'average_rating', 'total_reviews')
+        fields = ('id', 'name', 'duration', 'genres', 'poster', 'language', 'release_date', 'average_rating', 'total_reviews')
 
 
 class MovieDetailSerializer(serializers.ModelSerializer):
@@ -108,10 +114,11 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     average_rating = serializers.ReadOnlyField()
     total_reviews = serializers.ReadOnlyField()
     reviews = serializers.SerializerMethodField()
+    genres = GenreSerializer(many=True, read_only=True)
     
     class Meta:
         model = Movie
-        fields = ('id', 'name', 'description', 'genre', 'language', 'duration', 
+        fields = ('id', 'name', 'description', 'genres', 'language', 'duration', 
                  'poster', 'release_date', 'average_rating', 
                  'total_reviews', 'reviews')
     
@@ -232,9 +239,8 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
 
 class BookedSeatSerializer(serializers.ModelSerializer):
-    """
-    Serializer for booked seat information.
-    """
+    #shows which seat is booked in a booking
+
     seat_number = serializers.CharField(source='seat.seat_number', read_only=True)
     # seat_type = serializers.CharField(source='seat.seat_type', read_only=True)
     
@@ -300,3 +306,17 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+    
+
+class BulkShowSerializer(serializers.Serializer):
+    movie = serializers.PrimaryKeyRelatedField(queryset=Movie.objects.all())
+    screen = serializers.PrimaryKeyRelatedField(queryset=Screen.objects.all())
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    days_of_week = serializers.ListField(child=serializers.ChoiceField(choices=[
+        ('mon', 'Monday'), ('tue', 'Tuesday'), ('wed', 'Wednesday'),
+        ('thu', 'Thursday'), ('fri', 'Friday'), ('sat', 'Saturday'), ('sun', 'Sunday')
+    ]))
+    shows_per_day = serializers.IntegerField(min_value=1)
+    price_per_seat = serializers.DecimalField(max_digits=10, decimal_places=2)
+    

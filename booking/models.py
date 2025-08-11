@@ -1,46 +1,28 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.hashers import make_password
 
 # Create your models here.
 
-class UserManager(BaseUserManager):
-    def create_user(self, email, name, password=None, role='CUSTOMER', **extra_fields):
-        email = self.normalize_email(email)
-        user = self.model(email=email, name=name, role=role, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
 
-    def create_superuser(self, email, name, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, name, password, role='SUPERUSER', **extra_fields)
-
-class User(AbstractBaseUser, PermissionsMixin):
-    ROLE_CHOICES = (
-        ('CUSTOMER', 'Customer'),
-        ('THEATRE_MANAGER', 'Theatre Manager'),
-        ('SUPERUSER', 'Superuser'),
-    )
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+class User(AbstractUser):
+    """
+    Custom User model extending Django's AbstractUser.
+    Adds phone number and role fields for our booking system.
+    """
+    ROLE_CHOICES = [
+        ('user', 'User'),
+        ('admin', 'Theater Manager'),
+    ]
+    
     phone = models.CharField(max_length=20, blank=True, null=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='CUSTOMER')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     created_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    password = models.CharField(max_length=128)  # Use the standard field
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
-    objects = UserManager()
-
+    
     def __str__(self):
-        return f"{self.name} ({self.role})"
+        return f"{self.username} ({self.role})"
+
     
 
 class Theater(models.Model):
@@ -53,7 +35,7 @@ class Theater(models.Model):
     class Meta:
         db_table = 'theaters'
         indexes = [
-            models.Index(fields=['location']),  # For location-based searches
+            models.Index(fields=['city']),  # For location-based searches
         ]
 
     def __str__(self):
@@ -76,13 +58,9 @@ class Screen(models.Model):
         return f"{self.theater.name} - Screen {self.screen_number}"
     
 class Seat(models.Model):
-    #  SEAT_TYPE_CHOICES = [
-    #     ('regular', 'Regular'),
-    #     ('vip', 'VIP'),
-    # ]
+
      screen = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='seats')
      seat_number = models.CharField(max_length=10)
-    #  seat_type = models.CharField(max_length=10, choices=SEAT_TYPE_CHOICES, default='regular')
     
      class Meta:
         db_table = 'seats'
@@ -90,7 +68,10 @@ class Seat(models.Model):
     
      def __str__(self):
         return f"{self.screen} - Seat {self.seat_number} ({self.seat_type})"
-
+     
+class Genre(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    
 class Movie(models.Model):
     # STATUS =(
     #     (1, 'Active'),
@@ -99,7 +80,7 @@ class Movie(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, null=False)
     description = models.TextField(null=True, blank=True)  # Optional field for movie description
-    genre = models.CharField(max_length=50, null=False)
+    genres = models.ManyToManyField(Genre, related_name='movies')
     duration = models.IntegerField(null=False)  # Duration in minutes
     poster = models.ImageField(upload_to='posters/', blank=True)  
     language = models.CharField(max_length=50, null=False)

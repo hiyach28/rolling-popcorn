@@ -7,9 +7,13 @@ from rest_framework import generics, status, permissions, filters
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAdminUser
+from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import login
 from django.utils import timezone
+from datetime import datetime, timedelta
+from .utils import generate_random_showtimes
 
 import json
 
@@ -18,7 +22,7 @@ from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer,
     TheaterSerializer, ScreenSerializer, MovieListSerializer, MovieDetailSerializer,
     ShowListSerializer, ShowDetailSerializer, BookingCreateSerializer, 
-    BookingSerializer, ReviewSerializer, ReviewCreateSerializer
+    BookingSerializer, ReviewSerializer, ReviewCreateSerializer, BulkShowSerializer
 )
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -109,13 +113,13 @@ class TheaterListView(generics.ListAPIView):
 class MovieListView(generics.ListAPIView):
     """
     API endpoint for listing movies with search and filter capabilities.
-    Supports filtering by genre, language, and theater location.
+    Supports filtering by genres, language, and theater location.
     """
     queryset = Movie.objects.all()
     serializer_class = MovieListSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['genre', 'language']
+    filterset_fields = ['genres', 'language']
     search_fields = ['title', 'description']
     ordering_fields = ['release_date', 'title']
     ordering = ['-release_date']
@@ -361,3 +365,72 @@ class AdminShowCreateView(generics.CreateAPIView):
         if self.request.user.role != 'admin':
             self.permission_denied(self.request, message="Admin access required")
         return super().get_permissions()
+
+
+class BulkAddShowAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        serializer = BulkShowSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        movie = data['movie']
+        screen = data['screen']
+        start_date = data['start_date']
+        end_date = data['end_date']
+        days = data['days_of_week']
+        shows_per_day = data['shows_per_day']
+        price_per_seat = data['price_per_seat']
+
+        day_map = {'mon': 0, 'tue': 1, 'wed': 2, 'thu': 3, 'fri': 4, 'sat': 5, 'sun': 6}
+        selected_days = [day_map[d] for d in days]
+
+        def is_time_slot_free(screen, new_show_time, duration_hours=2):
+            start_window = new_show_time - timedelta(hours=duration_hours)
+            end_window = new_show_time + timedelta(hours=duration_hours)
+            return not Show.objects.filter(
+                screen=screen,
+                show_time__gte=start_window,
+                show_time__lte=end_window
+            ).exists()
+
+        count = 0
+        failed_days = []
+        current = start_date
+        while current <= end_date:
+            if current.weekday() in selected_days:
+                # to implement generate_random_showtimes
+                potential_times = generate_random_showtimes(shows_per_day * 3)
+                free_times = []
+                for show_time in potential_times:
+                    dt = datetime.combine(current, show_time)
+                    if is_time_slot_free(screen, dt):
+                        free_times.append(show_time)
+                    if len(free_times) == shows_per_day:
+                        break
+
+                if len(free_times) < shows_per_day:
+                    failed_days.append(current.strftime("%Y-%m-%d"))
+
+                for show_time in free_times:
+                    dt = datetime.combine(current, show_time)
+                    show = Show.objects.create(
+                        movie=movie,
+                        screen=screen,
+                        show_time=dt,
+                        price_per_seat= price_per_seat # price details stored separately
+                    )
+                    count += 1
+
+            current += timedelta(days=1)
+
+        message = f"{count} shows scheduled successfully."
+        if failed_days:
+            message += (
+                " Could not schedule all shows on these days due to lack of free time slots: "
+                + ", ".join(failed_days)
+                + "."
+            )
+
+        return Response({"message": message}, status=status.HTTP_201_CREATED)
