@@ -1,0 +1,94 @@
+/* General Theme */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+}
+
+/* Header / Navbar */
+header {
+    background-color: #b30000;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* Gallery */
+.gallery {
+    display: flex;
+    overflow: hidden;
+    height: 350px;
+}
+.gallery img {
+    width: 100%;
+    object-fit: cover;
+}
+
+/* Movie Cards */
+.movie-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+.movie-card {
+    background-color: #111;
+    border: 2px solid #b30000;
+    border-radius: 10px;
+    width: 200px;
+    overflow: hidden;
+    text-align: center;
+}
+.movie-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+.movie-card h3 {
+    margin: 10px;
+}
+.movie-card a {
+    display: inline-block;
+    padding: 8px;
+    margin: 10px;
+    background: #b30000;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.movie-card a:hover {
+    background: #ff0000;
+}
+
+/* Movie Details Page */
+.movie-details {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+.movie-details img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border: 3px solid #b30000;
+}
+.movie-details h2 {
+    color: #ff4d4d;
+}
+.book-btn {
+    padding: 10px 15px;
+    background: #b30000;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-top: 20px;
+}
+.book-btn:hover {
+    background: #ff0000;
+}
+
+/* Paym*

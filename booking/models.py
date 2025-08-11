@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 class User(AbstractUser):
     """
     Custom User model extending Django's AbstractUser.
-    Adds phone number and role fields for our booking system.
+    Addss phone number and role fields for our booking system.
     """
     ROLE_CHOICES = [
         ('user', 'User'),

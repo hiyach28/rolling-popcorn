@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Select Seats</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Rolling Popcorn</h1>
+</header>
+
+<div class="seat-layout">
+  <div id="seat-container"></div>
+  <button id="confirm-btn">Confirm Selection</button>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const showId = urlParams.get('showId');
+
+let selectedSeats = [];
+
+fetch(`http://localhost:8000/api/shows/${showId}/seats/`)
+  .then(res => res.json())
+  .then(layout => {
+    const container = document.getElementById('seat-container');
+    container.style.gridTemplateColumns = `repeat(${layout.columns + layout.aisles.length}, 40px)`;
+    layout.rows = Array.from(new Set(layout.seats.map(s => s.row)));
+
+    layout.rows.forEach(rowLabel => {
+      layout.seats
+        .filter(seat => seat.row === rowLabel)
+        .forEach((seat, index) => {
+          if (layout.aisles.includes(seat.number)) {
+            const gap = document.createElement('div');
+            gap.style.width = '40px';
+            container.appendChild(gap);
+          }
+          const seatDiv = document.createElement('div');
+          seatDiv.classList.add('seat');
+          if (seat.type === 'vip') seatDiv.classList.add('vip');
+          if (seat.status === 'booked') seatDiv.classList.add('booked');
+
+          seatDiv.onclick = () => {
+            if (seat.status !== 'booked') {
+              seatDiv.classList.toggle('selected');
+              if (selectedSeats.includes(seat)) {
+                selectedSeats = selectedSeats.filter(s => s !== seat);
+              } else {
+                selectedSeats.push(seat);
+              }
+            }
+          };
+          container.appendChild(seatDiv);
+        });
+    });
+  })
+  .catch(err => console.error(err));
+
+document.getElementById('confirm-btn').onclick = () => {
+  console.log("Selected seats:", selectedSeats);
+  alert(`You have selected ${selectedSeats.length} seats`);
+};
+</script>
+
+</body>
+</html>

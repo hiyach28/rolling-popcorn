@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'movie_booking',       # Replace with your DB name
         'USER': 'root',      # Replace with your MySQL username
-        'PASSWORD': 'password123',  # Replace with your MySQL password
+        'PASSWORD': 'sisira@dl07',  # Replace with your MySQL password
         'HOST': 'localhost',                 # Or your DB server IP/hostname
         'PORT': '3306',                     # Default MySQL port
     }

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>Rolling Popcorn</header>
+
+    <div class="payment-container">
+        <h2>Booking Summary</h2>
+        <div class="summary" id="summary"></div>
+    </div>
+
+    <script>
+        const movieData = JSON.parse(localStorage.getItem("selectedMovie"));
+        if (movieData) {
+            document.getElementById("summary").innerHTML = `
+                <p><strong>Movie:</strong> ${movieData.title}</p>
+                <p><strong>Price:</strong> ₹250</p>
+                <button class="book-btn">Proceed to Pay</button>
+            `;
+        } else {
+            document.getElementById("summary").innerHTML = `<p>No movie selected!</p>`;
+        }
+    </script>
+</body>
+</html>
