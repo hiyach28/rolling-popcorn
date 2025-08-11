@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin 
 from django.utils.html import format_html
-from .models import User, Theater, Screen, Movie, Booking, Seat, BookedSeat, Review, Show
+from .models import User, Theater, Screen, Movie, Booking, Seat, BookedSeat, Review, Show, Genre
 
 print("Booking admin.py loaded")
 
@@ -178,3 +178,8 @@ class ReviewAdmin(admin.ModelAdmin):
     has_review_text.boolean = True
     has_review_text.short_description = 'Has Review'
 
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)

@@ -72,6 +72,8 @@ class Seat(models.Model):
      
 class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    def __str__(self):
+        return self.name
     
 class Movie(models.Model):
     # STATUS =(
@@ -97,7 +99,7 @@ class Movie(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.title} ({self.language})"
+        return f"{self.name} ({self.language})"
     
     @property
     def average_rating(self):
