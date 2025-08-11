@@ -8,30 +8,31 @@ from .models import User, Theater, Screen, Seat, Movie, Show, Booking, BookedSea
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    #Serializer for user registration with password confirmation.
-
-    password = serializers.CharField(write_only=True, min_length=4) #write-only true means it can not be GET
+    """
+    Serializer for user registration with password confirmation.
+    """
+    password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'role', 'password', 'password_confirm') #tells which fields to expect from user
-        read_only_fields = ('role',)  # Users can't set role on signup unless you want them to
-
+        fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'password', 'password_confirm')
+    
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")
         return attrs
     
     def create(self, validated_data):
-        validated_data.pop('password_confirm') #dont store password_confirm
+        validated_data.pop('password_confirm')
         user = User.objects.create_user(**validated_data)
         return user
 
 
 class UserLoginSerializer(serializers.Serializer):
-    #Serializer for user authentication.
-
+    """
+    Serializer for user authentication.
+    """
     username = serializers.CharField()
     password = serializers.CharField()
     
@@ -53,8 +54,9 @@ class UserLoginSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    #Serializer for user profile information.
-
+    """
+    Serializer for user profile information.
+    """
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'phone', 'role', 'date_joined')

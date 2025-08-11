@@ -1,10 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.hashers import make_password
-
-# Create your models here.
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class User(AbstractUser):
     """
@@ -13,15 +12,15 @@ class User(AbstractUser):
     """
     ROLE_CHOICES = [
         ('user', 'User'),
-        ('admin', 'Theater Manager'),
+        ('admin', 'Theatre Manager'),
     ]
     
     phone = models.CharField(max_length=20, blank=True, null=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self):
-        return f"{self.username}: ({self.role})"
+        return f"{self.username} ({self.role})"
         
 
     
@@ -216,3 +215,56 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by User {self.user_id} for Movie {self.movie_id.name}"
+    
+class TheatreManager(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    theater = models.ForeignKey(Theater, on_delete=models.CASCADE)  
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'theatre_managers'
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.theater.name}"
+
+@receiver(post_save, sender=TheatreManager)
+def assign_theatre_manager_permissions(sender, instance, created, **kwargs):
+    if created:
+        user = instance.user
+        
+        # Create or get the Theatre Manager group
+        theatre_manager_group, group_created = Group.objects.get_or_create(
+            name='Theatre Managers'
+        )
+        
+        # Define permissions for theatre managers
+        permission_codenames = [
+            # Movie permissions
+            'add_movie', 'change_movie', 'view_movie',
+            # Screen permissions  
+            'add_screen', 'change_screen', 'delete_screen', 'view_screen',
+            # Show permissions
+            'add_show', 'change_show', 'delete_show', 'view_show',
+            # Booking permissions (view only for reports)
+            'view_booking',
+            # Theater permissions (change only their own theater)
+            'view_theater', 'change_theater',
+            # Seat permissions
+            'add_seat', 'change_seat', 'delete_seat', 'view_seat',
+            # Review permissions (view only)
+            'view_review',
+        ]
+        
+        # Add permissions to the group if it was just created
+        if group_created:
+            permissions = Permission.objects.filter(codename__in=permission_codenames)
+            theatre_manager_group.permissions.set(permissions)
+        
+        # Add user to the group and make them staff
+        user.groups.add(theatre_manager_group)
+        user.is_staff = True
+        user.role = 'admin'  # Set role to admin so they can access admin views
+        user.save()
+
+

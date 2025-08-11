@@ -7,7 +7,6 @@ from rest_framework import generics, status, permissions, filters
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import login
@@ -17,7 +16,7 @@ from .utils import generate_random_showtimes
 
 import json
 
-from .models import User, Theater, Screen, Movie, Show, Booking, Review
+from .models import User, Theater, Screen, Movie, Show, Booking, Review, TheatreManager
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer,
     TheaterSerializer, ScreenSerializer, MovieListSerializer, MovieDetailSerializer,
@@ -368,7 +367,15 @@ class AdminShowCreateView(generics.CreateAPIView):
 
 
 class BulkAddShowAPIView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated] 
+    
+    def get_permissions(self):
+        # Allow superusers and theatre managers
+        if not (self.request.user.is_superuser or 
+                hasattr(self.request.user, 'theatremanager') or 
+                self.request.user.role == 'admin'):
+            self.permission_denied(self.request, message="Theatre manager access required")
+        return super().get_permissions()
 
     def post(self, request):
         serializer = BulkShowSerializer(data=request.data)
@@ -377,6 +384,21 @@ class BulkAddShowAPIView(APIView):
 
         movie = data['movie']
         screen = data['screen']
+        
+        # Restrict theatre managers to their own theater's screens
+        if not request.user.is_superuser:
+            try:
+                theatre_manager = TheatreManager.objects.get(user=request.user)
+                if screen.theater != theatre_manager.theater:
+                    return Response({
+                        "error": "You can only create shows for your assigned theater"
+                    }, status=status.HTTP_403_FORBIDDEN)
+            except TheatreManager.DoesNotExist:
+                return Response({
+                    "error": "Theatre manager access required"
+                }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Rest of your existing code...
         start_date = data['start_date']
         end_date = data['end_date']
         days = data['days_of_week']
@@ -400,7 +422,6 @@ class BulkAddShowAPIView(APIView):
         current = start_date
         while current <= end_date:
             if current.weekday() in selected_days:
-                # to implement generate_random_showtimes
                 potential_times = generate_random_showtimes(shows_per_day * 3)
                 free_times = []
                 for show_time in potential_times:
@@ -419,7 +440,7 @@ class BulkAddShowAPIView(APIView):
                         movie=movie,
                         screen=screen,
                         show_time=dt,
-                        price_per_seat= price_per_seat # price details stored separately
+                        price_per_seat=price_per_seat
                     )
                     count += 1
 

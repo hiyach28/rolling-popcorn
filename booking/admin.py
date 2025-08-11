@@ -1,37 +1,100 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin 
 from django.utils.html import format_html
-from .models import User, Theater, Screen, Movie, Booking, Seat, BookedSeat, Review, Show, Genre
+from .models import User, Theater, Screen, Movie, Booking, Seat, BookedSeat, Review, Show, Genre, TheatreManager
+from django.contrib.auth.models import User as DjangoUser, Group 
 
-print("Booking admin.py loaded")
+
+class TheatreManagerInline(admin.StackedInline):
+    model = TheatreManager
+    extra = 0
+    verbose_name = "Theatre Manager Assignment"
+    verbose_name_plural = "Theatre Manager Assignments"
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    # Fields shown in list view
     list_display = ('email', 'name', 'role', 'is_staff', 'is_active')
     search_fields = ('email', 'username', 'first_name', 'last_name')
     list_filter = ('role', 'is_staff', 'is_active')
+    
+    inlines = [TheatreManagerInline]
 
-    # Fields shown when viewing/editing a user
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
         ('Personal Info', {'fields': ('first_name', 'last_name', 'phone', 'role')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
     )
 
-    # Fields shown when adding a new user
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'role'),
         }),
     )
-    ordering = ('-created_at',) #ordred by latest users created on top
+    ordering = ('-created_at',)
 
     def name(self, obj):
         return f"{obj.first_name} {obj.last_name}"
     name.short_description = 'Full Name'
+
+# Add TheatreManager admin
+@admin.register(TheatreManager)
+class TheatreManagerAdmin(admin.ModelAdmin):
+    list_display = ['user', 'theater', 'is_active', 'created_at']
+    list_filter = ['theater', 'is_active', 'created_at']
+    search_fields = ['user__username', 'user__email', 'theater__name']
+
+# Modify existing admins to restrict access for theatre managers
+# Update ShowAdmin to allow bulk add access
+@admin.register(Show)
+class ShowAdmin(admin.ModelAdmin):
+    list_display = ('movie', 'screen', 'show_time', 'price_per_seat', 'occupancy_rate')
+    list_filter = ('show_time', 'screen__theater', 'movie__genres')
+    search_fields = ('movie__name', 'screen__theater__name')
+    date_hierarchy = 'show_time'
+    
+    # Add custom admin actions
+    actions = ['bulk_add_shows']
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        try:
+            theatre_manager = TheatreManager.objects.get(user=request.user)
+            return qs.filter(screen__theater=theatre_manager.theater)
+        except TheatreManager.DoesNotExist:
+            return qs.none()
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "screen" and not request.user.is_superuser:
+            try:
+                theatre_manager = TheatreManager.objects.get(user=request.user)
+                kwargs["queryset"] = Screen.objects.filter(theater=theatre_manager.theater)
+            except TheatreManager.DoesNotExist:
+                kwargs["queryset"] = Screen.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def bulk_add_shows(self, request, queryset):
+        # Redirect to your bulk add shows API endpoint or create a custom admin page
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect('/admin/bulk-shows/')
+    bulk_add_shows.short_description = "Bulk add shows"
+
+    def occupancy_rate(self, obj):
+        if obj.total_seats > 0:
+            rate = (obj.booked_seats_count / obj.total_seats) * 100
+            color = 'green' if rate > 70 else 'orange' if rate > 40 else 'red'
+            return format_html(
+                '<span style="color: {};">{:.1f}%</span>',
+                color, rate
+            )
+        return "0%"
+    occupancy_rate.short_description = 'Occupancy'
+
+print("Booking admin.py loaded")
+
 
 class ScreenInline(admin.TabularInline):
     """
@@ -124,27 +187,6 @@ class BookedSeatInline(admin.TabularInline):
     extra = 0
     readonly_fields = ('seat',)
 
-
-@admin.register(Show)
-class ShowAdmin(admin.ModelAdmin):
-    """
-    Show admin with booking statistics.
-    """
-    list_display = ('movie', 'screen', 'show_time', 'price_per_seat', 'occupancy_rate')
-    list_filter = ('show_time', 'screen__theater', 'movie__genres')
-    search_fields = ('movie__title', 'screen__theater__name')
-    date_hierarchy = 'show_time'
-    
-    def occupancy_rate(self, obj):
-        if obj.total_seats > 0:
-            rate = (obj.booked_seats_count / obj.total_seats) * 100
-            color = 'green' if rate > 70 else 'orange' if rate > 40 else 'red'
-            return format_html(
-                '<span style="color: {};">{:.1f}%</span>',
-                color, rate
-            )
-        return "0%"
-    occupancy_rate.short_description = 'Occupancy'
 
 
 @admin.register(Booking)

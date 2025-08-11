@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'rp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'movie_booking',       # Replace with your DB name
+        'NAME': 'rollingpopcorn',       # Replace with your DB name
         'USER': 'root',      # Replace with your MySQL username
         'PASSWORD': 'password123',  # Replace with your MySQL password
         'HOST': 'localhost',                 # Or your DB server IP/hostname
@@ -95,16 +95,10 @@ MEDIA_ROOT = BASE_DIR / 'media'  # Or os.path.join(BASE_DIR, 'media') if you're 
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'OPTIONS': {
+            'min_length': 4,
+        }
     },
 ]
 
