@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/booking/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Show Information -->
+        <section class="show-info">
+            <h2 class="section-title">Select Your Seats</h2>
+            <div class="show-details">
+                <!-- Show details will be loaded here dynamically -->
+            </div>
+        </section>
+
+        <!-- Seat Selection Section -->
+        <section class="seat-selection">
+            <div class="seats-container">
+                <!-- Seat layout will be loaded here dynamically -->
+            </div>
+        </section>
+
+        <!-- Booking Summary -->
+        <section class="booking-summary">
+            <!-- Booking summary will be updated dynamically -->
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        // Initialize seat selection page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthStatus();
+            
+            const showId = getUrlParameter('show');
+            if (showId) {
+                await loadSeatLayout(showId);
+                await loadShowDetails(showId);
+            } else {
+                showMessage('Show not found', 'error');
+                window.location.href = '/';
+            }
+        });
+
+        // Load show details
+        async function loadShowDetails(showId) {
+            try {
+                const show = await apiCall(`/shows/${showId}/`);
+                if (show) {
+                    displayShowDetails(show);
+                }
+            } catch (error) {
+                console.error('Error loading show details:', error);
+            }
+        }
+
+        // Display show details
+        function displayShowDetails(show) {
+            const showDetails = document.querySelector('.show-details');
+            if (!showDetails) return;
+
+            showDetails.innerHTML = `
+                <div class="show-info-card">
+                    <div class="show-movie">
+                        <h3>${show.movie.title || show.movie.name}</h3>
+                        <p class="show-meta">
+                            <span>${show.screen.theater.name}</span> • 
+                            <span>Screen ${show.screen.screen_number}</span> • 
+                            <span>${formatShowTime(show.show_time)}</span>
+                        </p>
+                    </div>
+                    <div class="show-price-info">
+                        <span class="price-label">Price per seat:</span>
+                        <span class="price-value">₹${show.price_per_seat}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format show time
+        function formatShowTime(showTime) {
+            const date = new Date(showTime);
+            return date.toLocaleString('en-IN', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>
