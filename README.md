@@ -4,6 +4,8 @@ Rolling Popcorn is a high-performance movie ticket booking system built to handl
 
 
 🚀 Key Features
+
+
 Concurrency Control: Implements a distributed seat-locking mechanism using Redis to prevent race conditions during high-traffic booking windows. 
 
 Dynamic Discovery: Uses Geolocation APIs for auto-location detection to suggest nearby cinemas with sub-150ms latency. 
@@ -13,6 +15,8 @@ Multi-Role Management: Robust dashboard for Managers to handle bulk show adding 
 Responsive Design: Pixel-perfect UI designed in Figma and implemented using React.js. 
 
 🛠 Tech Stack
+
+
 Frontend: React.js, Tailwind CSS 
 
 Backend: Django (Python), Node.js 
