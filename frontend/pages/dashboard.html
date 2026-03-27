@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theater Dashboard - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard/" class="active">Dashboard</a>
+                <a href="/booking/">Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dashboard Header -->
+        <section class="dashboard-header">
+            <h1 class="section-title">Theater Dashboard</h1>
+            <p class="section-subtitle">Manage your theater operations</p>
+        </section>
+
+        <!-- Statistics Cards -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎬</div>
+                    <div class="stat-content">
+                        <h3 id="totalShows">Loading...</h3>
+                        <p>Shows This Week</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🎫</div>
+                    <div class="stat-content">
+                        <h3 id="totalBookings">Loading...</h3>
+                        <p>Total Bookings</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 id="totalRevenue">Loading...</h3>
+                        <p>Total Revenue</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="occupancyRate">Loading...</h3>
+                        <p>Occupancy Rate</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="action-grid">
+                <div class="action-card" onclick="addShow()">
+                    <div class="action-icon">➕</div>
+                    <h3>Add Show</h3>
+                    <p>Schedule a new movie show</p>
+                </div>
+                
+                <div class="action-card" onclick="manageScreens()">
+                    <div class="action-icon">🎭</div>
+                    <h3>Manage Screens</h3>
+                    <p>Configure screen layouts</p>
+                </div>
+                
+                <div class="action-card" onclick="viewReports()">
+                    <div class="action-icon">📈</div>
+                    <h3>View Reports</h3>
+                    <p>Analytics and insights</p>
+                </div>
+                
+                <div class="action-card" onclick="exportData()">
+                    <div class="action-icon">📤</div>
+                    <h3>Export Data</h3>
+                    <p>Download booking data</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="recent-activity">
+            <h2 class="section-title">Recent Activity</h2>
+            <div class="activity-list">
+                <!-- Activity items will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isAuthenticated = await checkAuthStatus();
+            if (!isAuthenticated) {
+                showMessage('Please login to access dashboard', 'warning');
+                window.location.href = '/login/';
+                return;
+            }
+            
+            // Check if user has admin/theater manager role
+            if (!currentUser || (currentUser.role !== 'admin' && !currentUser.theatremanager)) {
+                showMessage('Access denied. Admin privileges required.', 'error');
+                window.location.href = '/';
+                return;
+            }
+            
+            await loadDashboardData();
+        });
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            showLoading('Loading dashboard...');
+            
+            try {
+                // Load recent bookings via the existing bookings endpoint
+                await loadRecentActivity();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showMessage('Failed to load dashboard data', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display statistics
+        function displayStats(stats) {
+            document.getElementById('totalShows').textContent = stats.total_shows_this_week || 0;
+            document.getElementById('totalBookings').textContent = stats.total_bookings || 0;
+            document.getElementById('totalRevenue').textContent = `₹${stats.total_revenue || 0}`;
+            document.getElementById('occupancyRate').textContent = `${stats.occupancy_rate || 0}%`;
+        }
+
+        // Load recent activity
+        async function loadRecentActivity() {
+            try {
+                const bookings = await apiCall('/bookings/');
+                if (bookings && bookings.length > 0) {
+                    displayRecentActivity(bookings.slice(0, 5));
+                    // Update stats from bookings data
+                    document.getElementById('totalBookings').textContent = bookings.length;
+                    const revenue = bookings.reduce((sum, b) => sum + parseFloat(b.total_amount || b.total_price || 0), 0);
+                    document.getElementById('totalRevenue').textContent = `₹${revenue.toFixed(2)}`;
+                    document.getElementById('totalShows').textContent = '-';
+                    document.getElementById('occupancyRate').textContent = '-';
+                } else {
+                    displayRecentActivity([]);
+                    ['totalShows','totalBookings','totalRevenue','occupancyRate'].forEach(id => {
+                        document.getElementById(id).textContent = '0';
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+                displayRecentActivity([]);
+            }
+        }
+
+        // Display recent activity
+        function displayRecentActivity(bookings) {
+            const activityList = document.querySelector('.activity-list');
+            if (!activityList) return;
+
+            if (bookings.length === 0) {
+                activityList.innerHTML = `
+                    <div class="no-activity">
+                        <p>No recent activity</p>
+                    </div>
+                `;
+                return;
+            }
+
+            activityList.innerHTML = bookings.map(booking => `
+                <div class="activity-item">
+                    <div class="activity-icon">🎫</div>
+                    <div class="activity-content">
+                        <h4>${booking.show.movie_title || booking.show.movie}</h4>
+                        <p>Booking by ${booking.user_name || booking.user} - ${booking.booked_seats.length} seats</p>
+                        <small>${new Date(booking.booking_time).toLocaleString()}</small>
+                    </div>
+                    <div class="activity-status ${booking.status}">
+                        ${booking.status}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Quick action functions
+        function addShow() {
+            showMessage('Add show functionality will be implemented soon', 'info');
+        }
+
+        function manageScreens() {
+            showMessage('Screen management functionality will be implemented soon', 'info');
+        }
+
+        function viewReports() {
+            showMessage('Reports functionality will be implemented soon', 'info');
+        }
+
+        function exportData() {
+            showMessage('Data export functionality will be implemented soon', 'info');
+        }
+    </script>
+</body>
+</html>

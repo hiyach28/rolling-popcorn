@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/booking/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="form-container">
+            <h2 class="form-title">Login to Your Account</h2>
+            
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </div>
+                
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="/register/">Register here</a></p>
+                    <p><a href="/">Back to Home</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        // Login form handling
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            const success = await login(username, password);
+            if (success) {
+                // Redirect will be handled by the login function
+            }
+        });
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isAuthenticated = await checkAuthStatus();
+            if (isAuthenticated) {
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

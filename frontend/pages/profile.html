@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/booking/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Profile Header -->
+        <section class="profile-header">
+            <h1 class="section-title">My Profile</h1>
+            <p class="section-subtitle">Manage your account information</p>
+        </section>
+
+        <!-- Profile Information -->
+        <section class="profile-info">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <div class="avatar-placeholder">
+                        <span>👤</span>
+                    </div>
+                </div>
+                
+                <div class="profile-details">
+                    <h2 id="profileName">Loading...</h2>
+                    <p id="profileEmail">Loading...</p>
+                    <p id="profileRole">Loading...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Form -->
+        <section class="profile-form">
+            <div class="form-container">
+                <h2 class="form-title">Edit Profile</h2>
+                
+                <form id="profileForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" id="firstName" name="first_name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" id="lastName" name="last_name" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Account Actions -->
+        <section class="account-actions">
+            <div class="form-container">
+                <h2 class="form-title">Account Actions</h2>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="changePassword()">Change Password</button>
+                    <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        // Initialize profile page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isAuthenticated = await checkAuthStatus();
+            if (!isAuthenticated) {
+                showMessage('Please login to view your profile', 'warning');
+                window.location.href = '/login/';
+                return;
+            }
+            
+            await loadProfileData();
+        });
+
+        // Load profile data
+        async function loadProfileData() {
+            showLoading('Loading profile...');
+            
+            try {
+                const profile = await apiCall('/auth/profile/');
+                if (profile) {
+                    displayProfileData(profile);
+                    populateForm(profile);
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showMessage('Failed to load profile data', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display profile data
+        function displayProfileData(profile) {
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const profileRole = document.getElementById('profileRole');
+            
+            if (profileName) {
+                profileName.textContent = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.username;
+            }
+            
+            if (profileEmail) {
+                profileEmail.textContent = profile.email;
+            }
+            
+            if (profileRole) {
+                profileRole.textContent = profile.role || 'User';
+            }
+        }
+
+        // Populate form with profile data
+        function populateForm(profile) {
+            document.getElementById('firstName').value = profile.first_name || '';
+            document.getElementById('lastName').value = profile.last_name || '';
+            document.getElementById('email').value = profile.email || '';
+            document.getElementById('phone').value = profile.phone || '';
+        }
+
+        // Handle profile form submission
+        document.getElementById('profileForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const profileData = {
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                email: formData.get('email'),
+                phone: formData.get('phone')
+            };
+            
+            // Validation
+            if (!profileData.first_name || !profileData.last_name || !profileData.email) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            showLoading('Updating profile...');
+            
+            try {
+                const response = await apiCall('/auth/profile/', 'PUT', profileData);
+                if (response) {
+                    showMessage('Profile updated successfully!', 'success');
+                    await loadProfileData(); // Reload profile data
+                }
+            } catch (error) {
+                showMessage('Failed to update profile: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Change password function
+        function changePassword() {
+            const newPassword = prompt('Enter new password (minimum 8 characters):');
+            if (!newPassword) return;
+            
+            if (newPassword.length < 8) {
+                showMessage('Password must be at least 8 characters long', 'error');
+                return;
+            }
+            
+            const confirmPassword = prompt('Confirm new password:');
+            if (newPassword !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            // Here you would typically make an API call to change password
+            showMessage('Password change functionality will be implemented soon', 'info');
+        }
+
+        // Delete account function
+        function deleteAccount() {
+            const confirmDelete = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+            if (!confirmDelete) return;
+            
+            const password = prompt('Enter your password to confirm account deletion:');
+            if (!password) return;
+            
+            // Here you would typically make an API call to delete account
+            showMessage('Account deletion functionality will be implemented soon', 'info');
+        }
+    </script>
+</body>
+</html>

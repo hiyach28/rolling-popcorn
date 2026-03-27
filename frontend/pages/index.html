@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rolling Popcorn - Movie Ticket Booking</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/theaters/">Theaters</a>
+                <a href="/bookings/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Banner Carousel -->
+    <section class="banner-carousel">
+        <div class="carousel-container">
+            <div class="carousel-slide active">
+                <img src="/frontend/assets/images/banners/banner1.png" alt="Banner 1">
+            </div>
+            <div class="carousel-slide">
+                <img src="/frontend/assets/images/banners/banner2.png" alt="Banner 2">
+            </div>
+            <div class="carousel-slide">
+                <img src="/frontend/assets/images/banners/banner3.png" alt="Banner 3">
+            </div>
+            <button class="carousel-btn prev" onclick="changeSlide(-1)">❮</button>
+            <button class="carousel-btn next" onclick="changeSlide(1)">❯</button>
+            <div class="carousel-dots">
+                <span class="dot active" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Search and Filter Section -->
+        <section class="search-section">
+            <h2 class="section-title">Find Your Perfect Movie</h2>
+            <form class="search-form" onsubmit="searchMovies(event)">
+                <div class="form-group">
+                    <label class="form-label">Search Movies</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Enter movie name...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <select class="form-control" id="languageFilter">
+                        <option value="">All Languages</option>
+                        <option value="English">English</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Malayalam">Malayalam</option>
+                        <option value="Kannada">Kannada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">City</label>
+                    <select class="form-control" id="cityFilter">
+                        <option value="">All Cities</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Kolkata">Kolkata</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Movies Section -->
+        <section id="movies" class="section">
+            <h2 class="section-title">Now Showing</h2>
+            <p class="section-subtitle">Discover the latest movies in theaters near you</p>
+            
+            <!-- Movie Grid -->
+            <div class="movie-grid">
+                <!-- Movies will be loaded here dynamically -->
+            </div>
+        </section>
+
+        <!-- Featured Movies Section -->
+        <section class="section">
+            <h2 class="section-title">Featured Movies</h2>
+            <p class="section-subtitle">Handpicked movies you shouldn't miss</p>
+            
+            <div class="movie-grid">
+                <div class="movie-card" onclick="viewMovie(1)">
+                    <img src="/frontend/assets/images/movies/superman.jpg" alt="Superman" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Superman</h3>
+                        <div class="movie-meta">
+                            <span>English</span>
+                            <div class="movie-rating">⭐ 8.5</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Action</span>
+                            <span class="genre-tag">Adventure</span>
+                            <span class="genre-tag">Superhero</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card" onclick="viewMovie(2)">
+                    <img src="/frontend/assets/images/movies/jurassicworld.jpg" alt="Jurassic World" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Jurassic World</h3>
+                        <div class="movie-meta">
+                            <span>English</span>
+                            <div class="movie-rating">⭐ 7.8</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Action</span>
+                            <span class="genre-tag">Adventure</span>
+                            <span class="genre-tag">Sci-Fi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card" onclick="viewMovie(3)">
+                    <img src="/frontend/assets/images/movies/fantasticfour.jpg" alt="Fantastic Four" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Fantastic Four</h3>
+                        <div class="movie-meta">
+                            <span>English</span>
+                            <div class="movie-rating">⭐ 6.9</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Action</span>
+                            <span class="genre-tag">Adventure</span>
+                            <span class="genre-tag">Superhero</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card" onclick="viewMovie(4)">
+                    <img src="/frontend/assets/images/movies/badguys.jpg" alt="The Bad Guys" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">The Bad Guys</h3>
+                        <div class="movie-meta">
+                            <span>English</span>
+                            <div class="movie-rating">⭐ 7.2</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Animation</span>
+                            <span class="genre-tag">Comedy</span>
+                            <span class="genre-tag">Adventure</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card" onclick="viewMovie(5)">
+                    <img src="/frontend/assets/images/movies/dragon.jpg" alt="Dragon Ball" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Dragon Ball Super</h3>
+                        <div class="movie-meta">
+                            <span>Japanese</span>
+                            <div class="movie-rating">⭐ 8.1</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Animation</span>
+                            <span class="genre-tag">Action</span>
+                            <span class="genre-tag">Fantasy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card" onclick="viewMovie(6)">
+                    <img src="/frontend/assets/images/movies/f1.jpg" alt="F1" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">F1: Drive to Survive</h3>
+                        <div class="movie-meta">
+                            <span>English</span>
+                            <div class="movie-rating">⭐ 8.7</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Documentary</span>
+                            <span class="genre-tag">Sports</span>
+                            <span class="genre-tag">Racing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Coming Soon Section -->
+        <section class="section">
+            <h2 class="section-title">Coming Soon</h2>
+            <p class="section-subtitle">Get ready for these upcoming releases</p>
+            
+            <div class="movie-grid">
+                <div class="movie-card">
+                    <img src="/frontend/assets/images/movies/zora.jpg" alt="Zora" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Zora</h3>
+                        <div class="movie-meta">
+                            <span>Hindi</span>
+                            <div class="movie-rating">Coming Soon</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Drama</span>
+                            <span class="genre-tag">Romance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card">
+                    <img src="/frontend/assets/images/movies/weapons.jpg" alt="Weapons" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Weapons</h3>
+                        <div class="movie-meta">
+                            <span>English</span>
+                            <div class="movie-rating">Coming Soon</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Action</span>
+                            <span class="genre-tag">Thriller</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card">
+                    <img src="/frontend/assets/images/movies/metro.jpg" alt="Metro" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Metro</h3>
+                        <div class="movie-meta">
+                            <span>Hindi</span>
+                            <div class="movie-rating">Coming Soon</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Drama</span>
+                            <span class="genre-tag">Social</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-card">
+                    <img src="/frontend/assets/images/movies/saiyaara.jpg" alt="Saiyaara" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">Saiyaara</h3>
+                        <div class="movie-meta">
+                            <span>Hindi</span>
+                            <div class="movie-rating">Coming Soon</div>
+                        </div>
+                        <div class="movie-genres">
+                            <span class="genre-tag">Romance</span>
+                            <span class="genre-tag">Drama</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        // Carousel functionality
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            if (currentSlideIndex >= slides.length) currentSlideIndex = 0;
+            if (currentSlideIndex < 0) currentSlideIndex = slides.length - 1;
+            showSlide(currentSlideIndex);
+        }
+
+        function currentSlide(index) {
+            currentSlideIndex = index - 1;
+            showSlide(currentSlideIndex);
+        }
+
+        // Auto-advance carousel
+        setInterval(() => changeSlide(1), 5000);
+
+        // Search and filter functionality
+        function searchMovies(event) {
+            event.preventDefault();
+            
+            const searchTerm = document.getElementById('searchInput').value;
+            const language = document.getElementById('languageFilter').value;
+            const city = document.getElementById('cityFilter').value;
+            
+            const filters = {};
+            if (searchTerm) filters.search = searchTerm;
+            if (language) filters.language = language;
+            if (city) filters.theater_city = city;
+            
+            loadMovies(filters);
+        }
+
+        // Enhanced movie viewing function
+        function viewMovie(movieId) {
+            window.location.href = `/movie/${movieId}/`;
+        }
+
+        // Initialize home page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthStatus();
+            await loadMovies();
+        });
+    </script>
+</body>
+</html>

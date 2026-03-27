@@ -1,0 +1,1199 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theater Manager Dashboard - Rolling Popcorn Cinemas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #cc1e36;
+            --dark-red: #a91729;
+            --black: #1a1a1a;
+            --dark-gray: #2d2d2d;
+            --light-gray: #404040;
+            --text-white: #ffffff;
+            --text-gray: #cccccc;
+            --border-gray: #555555;
+            --success-green: #28a745;
+            --warning-yellow: #ffc107;
+            --error-red: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--black);
+            color: var(--text-white);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-white);
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-role {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .btn {
+            background-color: var(--light-gray);
+            color: var(--text-white);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: var(--border-gray);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-red);
+        }
+
+        .btn-success {
+            background-color: var(--success-green);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-yellow);
+            color: var(--black);
+        }
+
+        .btn-danger {
+            background-color: var(--error-red);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            color: var(--text-white);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-gray);
+        }
+
+        .error {
+            background-color: var(--error-red);
+            color: var(--text-white);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .success {
+            background-color: var(--success-green);
+            color: var(--text-white);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-card {
+            background-color: var(--dark-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(204, 30, 54, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-white);
+        }
+
+        .card-description {
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--dark-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .form-container {
+            background-color: var(--dark-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-white);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--light-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            color: var(--text-white);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(204, 30, 54, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            accent-color: var(--primary-red);
+        }
+
+        .table-container {
+            background-color: var(--dark-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .table th {
+            background-color: var(--light-gray);
+            color: var(--text-white);
+            font-weight: 600;
+        }
+
+        .table td {
+            color: var(--text-gray);
+        }
+
+        .status-confirmed {
+            color: var(--success-green);
+            font-weight: 500;
+        }
+
+        .status-cancelled {
+            color: var(--error-red);
+            font-weight: 500;
+        }
+
+        .status-upcoming {
+            color: var(--warning-yellow);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="navbar-brand">Rolling Popcorn Cinemas</div>
+        <div class="navbar-user">
+            <div class="user-info">
+                <div class="user-name">{{ user.first_name }} {{ user.last_name|default:user.username }}</div>
+                <div class="user-role">Theater Manager</div>
+            </div>
+            <a href="{% url 'user-logout' %}" class="btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Theater Management Dashboard</h1>
+            <p class="dashboard-subtitle" id="theaterName">Loading theater information...</p>
+        </div>
+
+        <!-- Messages -->
+        <div id="messages"></div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalShows">-</div>
+                <div class="stat-label">Total Shows This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalBookings">-</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="occupancyRate">-%</div>
+                <div class="stat-label">Average Occupancy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalRevenue">Rs-</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Cards -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">📅</div>
+                    <div class="card-title">Show Management</div>
+                </div>
+                <div class="card-description">
+                    Create, edit, and manage movie shows. Use bulk creation for efficient scheduling.
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="toggleBulkShowForm()">Bulk Create Shows</button>
+                    <button class="btn" onclick="loadShows()">View All Shows</button>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🎬</div>
+                    <div class="card-title">Movie Library</div>
+                </div>
+                <div class="card-description">
+                    Add new movies, update movie information, and manage your cinema's movie catalog.
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="toggleMovieForm()">Add New Movie</button>
+                    <button class="btn" onclick="loadMovies()">Manage Movies</button>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🏢</div>
+                    <div class="card-title">Screen Management</div>
+                </div>
+                <div class="card-description">
+                    Configure screen layouts, manage seating arrangements, and update screen information.
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="loadScreens()">Configure Screens</button>
+                    <button class="btn" onclick="manageSeats()">Seat Layout</button>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Reports & Analytics</div>
+                </div>
+                <div class="card-description">
+                    View booking reports, occupancy rates, revenue analytics, and performance metrics.
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="loadReports()">View Reports</button>
+                    <button class="btn" onclick="exportData()">Export Data</button>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">🎫</div>
+                    <div class="card-title">Booking Management</div>
+                </div>
+                <div class="card-description">
+                    View and manage customer bookings, handle cancellations and refunds.
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="loadBookings()">View Bookings</button>
+                    <button class="btn" onclick="loadCancellations()">Cancellations</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Show Creation Form -->
+        <div id="bulkShowForm" class="form-container">
+            <h2 style="color: var(--text-white); margin-bottom: 2rem;">Bulk Create Shows</h2>
+            <form onsubmit="createBulkShows(event)">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Select Movie</label>
+                        <select class="form-control" id="movieSelect" required>
+                            <option value="">Loading movies...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select Screen</label>
+                        <select class="form-control" id="screenSelect" required>
+                            <option value="">Loading screens...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Days of Week</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mon" value="mon">
+                            <label for="mon">Monday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tue" value="tue">
+                            <label for="tue">Tuesday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="wed" value="wed">
+                            <label for="wed">Wednesday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="thu" value="thu">
+                            <label for="thu">Thursday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="fri" value="fri">
+                            <label for="fri">Friday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sat" value="sat">
+                            <label for="sat">Saturday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sun" value="sun">
+                            <label for="sun">Sunday</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Shows Per Day</label>
+                        <select class="form-control" id="showsPerDay" required>
+                            <option value="1">1 Show</option>
+                            <option value="2">2 Shows</option>
+                            <option value="3">3 Shows</option>
+                            <option value="4">4 Shows</option>
+                            <option value="5">5 Shows</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price Per Seat (Rs)</label>
+                        <input type="number" class="form-control" id="pricePerSeat" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button type="submit" class="btn btn-primary">Create Shows</button>
+                    <button type="button" class="btn" onclick="toggleBulkShowForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Movie Creation Form -->
+        <div id="movieForm" class="form-container">
+            <h2 style="color: var(--text-white); margin-bottom: 2rem;">Add New Movie</h2>
+            <form onsubmit="createMovie(event)">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Movie Name</label>
+                    <input type="text" class="form-control" id="movieName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="movieDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="movieDuration" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Language</label>
+                        <input type="text" class="form-control" id="movieLanguage" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Release Date</label>
+                    <input type="date" class="form-control" id="movieReleaseDate" required>
+                </div>
+
+                <div class="card-actions">
+                    <button type="submit" class="btn btn-primary">Add Movie</button>
+                    <button type="button" class="btn" onclick="toggleMovieForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Display Area -->
+        <div id="dataDisplay"></div>
+    </div>
+
+    <script>
+        // Django CSRF Token
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+        
+        const API_BASE = '';
+
+
+        // Current user from Django context
+        const currentUser = {
+            id: {{ user.id }},
+            username: '{{ user.username }}',
+            firstName: '{{ user.first_name }}',
+            lastName: '{{ user.last_name }}',
+            role: '{{ user.role }}'
+        };
+
+        // API Helper Functions
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            };
+
+            const config = {
+                method,
+                headers,
+                credentials: 'same-origin', // Include cookies for Django session auth
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                
+                if (response.status === 401 || response.status === 403) {
+                    showMessage('Access denied. Please check your permissions.', 'error');
+                    return null;
+                }
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || result.error || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API call error:', error);
+                showMessage(error.message, 'error');
+                return null;
+            }
+        }
+
+        // Message Display
+        function showMessage(message, type = 'success') {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = type;
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+            
+            setTimeout(() => {
+                messageElement.remove();
+            }, 5000);
+        }
+
+        // Initialize Dashboard
+        async function initializeDashboard() {
+            await loadStats();
+            await loadMoviesAndScreens();
+        }
+
+        // Load Dashboard Statistics
+        async function loadStats() {
+            try {
+                const shows = await apiCall('/shows/');
+                
+                if (shows) {
+                    // Filter shows for current week
+                    const now = new Date();
+                    const weekStart = new Date(now);
+                    weekStart.setDate(now.getDate() - now.getDay());
+                    
+                    const weekShows = shows.filter(show => {
+                        const showDate = new Date(show.show_time);
+                        return showDate >= weekStart;
+                    });
+                    
+                    document.getElementById('totalShows').textContent = weekShows.length;
+                }
+
+                // Load theater info
+                document.getElementById('theaterName').textContent = 'Managing Theater Operations';
+                
+                // Set default stats
+                document.getElementById('totalBookings').textContent = '0';
+                document.getElementById('totalRevenue').textContent = 'Rs. 0';
+                document.getElementById('occupancyRate').textContent = '0%';
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Movies and Screens for forms
+        async function loadMoviesAndScreens() {
+            const movies = await apiCall('/home/');
+            const theaters = await apiCall('/theaters/');
+            
+            const movieSelect = document.getElementById('movieSelect');
+            const screenSelect = document.getElementById('screenSelect');
+            
+            if (movies) {
+                movieSelect.innerHTML = '<option value="">Choose a movie...</option>';
+                movies.forEach(movie => {
+                    const option = document.createElement('option');
+                    option.value = movie.id;
+                    option.textContent = `${movie.name} (${movie.language})`;
+                    movieSelect.appendChild(option);
+                });
+            }
+            
+            if (theaters && theaters.length > 0) {
+                screenSelect.innerHTML = '<option value="">Choose a screen...</option>';
+                // For now, create screen options based on total_screens
+                for (let i = 1; i <= theaters[0].total_screens; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `Screen ${i}`;
+                    screenSelect.appendChild(option);
+                }
+            }
+        }
+
+        // Form Toggle Functions
+        function toggleBulkShowForm() {
+            const form = document.getElementById('bulkShowForm');
+            const isVisible = form.style.display === 'block';
+            
+            // Hide all forms first
+            document.querySelectorAll('.form-container').forEach(f => f.style.display = 'none');
+            
+            if (!isVisible) {
+                form.style.display = 'block';
+                
+                // Set default dates
+                const today = new Date();
+                const nextWeek = new Date(today);
+                nextWeek.setDate(today.getDate() + 7);
+                
+                document.getElementById('startDate').value = today.toISOString().split('T')[0];
+                document.getElementById('endDate').value = nextWeek.toISOString().split('T')[0];
+            }
+        }
+
+        function toggleMovieForm() {
+            const form = document.getElementById('movieForm');
+            const isVisible = form.style.display === 'block';
+            
+            // Hide all forms first
+            document.querySelectorAll('.form-container').forEach(f => f.style.display = 'none');
+            
+            if (!isVisible) {
+                form.style.display = 'block';
+            }
+        }
+
+        // Create Bulk Shows
+        async function createBulkShows(event) {
+            event.preventDefault();
+            
+            const formData = {
+                movie: parseInt(document.getElementById('movieSelect').value),
+                screen: parseInt(document.getElementById('screenSelect').value),
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                shows_per_day: parseInt(document.getElementById('showsPerDay').value),
+                price_per_seat: parseFloat(document.getElementById('pricePerSeat').value),
+                days_of_week: []
+            };
+            
+            // Get selected days
+            const dayCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            dayCheckboxes.forEach(checkbox => {
+                formData.days_of_week.push(checkbox.value);
+            });
+            
+            if (formData.days_of_week.length === 0) {
+                showMessage('Please select at least one day of the week.', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/dashboard/bulk-add-shows/', 'POST', formData);
+            
+            if (result) {
+                showMessage(result.message || 'Shows created successfully!');
+                document.querySelector('#bulkShowForm form').reset();
+                toggleBulkShowForm();
+                loadStats(); // Refresh stats
+            }
+        }
+
+        // Create Movie
+        async function createMovie(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('movieName').value,
+                description: document.getElementById('movieDescription').value,
+                duration: parseInt(document.getElementById('movieDuration').value),
+                language: document.getElementById('movieLanguage').value,
+                release_date: document.getElementById('movieReleaseDate').value,
+            };
+            
+            const result = await apiCall('/dashboard/movies/create/', 'POST', formData);
+            
+            if (result) {
+                showMessage('Movie created successfully!');
+                document.querySelector('#movieForm form').reset();
+                toggleMovieForm();
+                loadMoviesAndScreens(); // Refresh movie list
+            }
+        }
+
+        // Load Shows
+        async function loadShows() {
+            const shows = await apiCall('/shows/');
+            if (shows) {
+                displayShows(shows);
+            }
+        }
+
+        // Display Shows
+        function displayShows(shows) {
+            const dataDisplay = document.getElementById('dataDisplay');
+            
+            let html = `
+                <div class="table-container">
+                    <h3 style="color: var(--text-white); margin-bottom: 1rem;">All Shows</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Movie</th>
+                                <th>Screen</th>
+                                <th>Date & Time</th>
+                                <th>Price</th>
+                                <th>Available Seats</th>
+                                <th>Total Seats</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            shows.forEach(show => {
+                const showDate = new Date(show.show_time).toLocaleString();
+                const occupancy = show.total_seats > 0 ? 
+                    Math.round(((show.total_seats - show.available_seats_count) / show.total_seats) * 100) : 0;
+                
+                html += `
+                    <tr>
+                        <td>${show.movie_title || 'N/A'}</td>
+                        <td>${show.theater_name || 'N/A'} - Screen ${show.screen_number || 'N/A'}</td>
+                        <td>${showDate}</td>
+                        <td>${show.price_per_seat}</td>
+                        <td>${show.available_seats_count || 0}</td>
+                        <td>${show.total_seats || 0} (${occupancy}%)</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editShow(${show.id})">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteShow(${show.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            dataDisplay.innerHTML = html;
+        }
+
+        // Load Movies
+        async function loadMovies() {
+            const movies = await apiCall('/home/');
+            if (movies) {
+                displayMovies(movies);
+            }
+        }
+
+        // Display Movies
+        function displayMovies(movies) {
+            const dataDisplay = document.getElementById('dataDisplay');
+            
+            let html = `
+                <div class="table-container">
+                    <h3 style="color: var(--text-white); margin-bottom: 1rem;">All Movies</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Language</th>
+                                <th>Duration</th>
+                                <th>Release Date</th>
+                                <th>Rating</th>
+                                <th>Reviews</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            movies.forEach(movie => {
+                const releaseDate = new Date(movie.release_date).toLocaleDateString();
+                const genres = movie.genres ? movie.genres.map(g => g.name).join(', ') : 'N/A';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${movie.name}</strong><br>
+                            <small style="color: var(--text-gray);">${genres}</small>
+                        </td>
+                        <td>${movie.language}</td>
+                        <td>${movie.duration} min</td>
+                        <td>${releaseDate}</td>
+                        <td>${movie.average_rating ? movie.average_rating.toFixed(1) : 'N/A'}/10</td>
+                        <td>${movie.total_reviews || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editMovie(${movie.id})">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteMovie(${movie.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            dataDisplay.innerHTML = html;
+        }
+
+        // Load Bookings
+        async function loadBookings() {
+            const bookings = await apiCall('/bookings/');
+            if (bookings) {
+                displayBookings(bookings);
+            }
+        }
+
+        // Display Bookings
+        function displayBookings(bookings) {
+            const dataDisplay = document.getElementById('dataDisplay');
+            
+            let html = `
+                <div class="table-container">
+                    <h3 style="color: var(--text-white); margin-bottom: 1rem;">All Bookings</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>User</th>
+                                <th>Movie</th>
+                                <th>Show Time</th>
+                                <th>Seats</th>
+                                <th>Total Price</th>
+                                <th>Status</th>
+                                <th>Booking Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            bookings.forEach(booking => {
+                const bookingDate = new Date(booking.booking_time).toLocaleString();
+                const showTime = booking.show ? new Date(booking.show.show_time).toLocaleString() : 'N/A';
+                const seatCount = booking.booked_seats ? booking.booked_seats.length : 0;
+                const statusClass = booking.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled';
+                
+                html += `
+                    <tr>
+                        <td>#${booking.id}</td>
+                        <td>${booking.user_name || `User ${booking.user}`}</td>
+                        <td>${booking.show?.movie_title || 'N/A'}</td>
+                        <td>${showTime}</td>
+                        <td>${seatCount} seats</td>
+                        <td>${booking.total_price}</td>
+                        <td class="${statusClass}">${booking.status}</td>
+                        <td>${bookingDate}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            dataDisplay.innerHTML = html;
+        }
+
+        // Load Screens
+        async function loadScreens() {
+            const dataDisplay = document.getElementById('dataDisplay');
+            dataDisplay.innerHTML = `
+                <div class="table-container">
+                    <h3 style="color: var(--text-white); margin-bottom: 1rem;">Screen Management</h3>
+                    <p style="color: var(--text-gray);">Screen management functionality would be implemented here.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary">Add New Screen</button>
+                        <button class="btn">Configure Seating</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Reports
+        async function loadReports() {
+            const dataDisplay = document.getElementById('dataDisplay');
+            
+            // Generate sample report data
+            const reportData = {
+                dailyRevenue: [
+                    { date: '2024-12-10', revenue: 2500, bookings: 45 },
+                    { date: '2024-12-11', revenue: 3200, bookings: 52 },
+                    { date: '2024-12-12', revenue: 2800, bookings: 48 },
+                    { date: '2024-12-13', revenue: 3500, bookings: 58 },
+                    { date: '2024-12-14', revenue: 4200, bookings: 67 }
+                ]
+            };
+            
+            let html = `
+                <div class="table-container">
+                    <h3 style="color: var(--text-white); margin-bottom: 1rem;">Daily Revenue Report</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Revenue</th>
+                                <th>Bookings</th>
+                                <th>Avg. Ticket Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            reportData.dailyRevenue.forEach(day => {
+                const avgPrice = day.bookings > 0 ? (day.revenue / day.bookings).toFixed(2) : '0.00';
+                const date = new Date(day.date).toLocaleDateString();
+                
+                html += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${day.revenue.toLocaleString()}</td>
+                        <td>${day.bookings}</td>
+                        <td>${avgPrice}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                    <div class="card-actions" style="margin-top: 1rem;">
+                        <button class="btn btn-primary">Generate Full Report</button>
+                        <button class="btn">Export CSV</button>
+                    </div>
+                </div>
+            `;
+            
+            dataDisplay.innerHTML = html;
+        }
+
+        // Placeholder functions for other actions
+        async function editShow(showId) {
+            showMessage(`Edit show functionality would be implemented for show ID: ${showId}`);
+        }
+
+        async function deleteShow(showId) {
+            if (confirm('Are you sure you want to delete this show?')) {
+                const result = await apiCall(`/shows/${showId}/`, 'DELETE');
+                if (result) {
+                    showMessage('Show deleted successfully!');
+                    loadShows(); // Refresh the list
+                }
+            }
+        }
+
+        async function editMovie(movieId) {
+            showMessage(`Edit movie functionality would be implemented for movie ID: ${movieId}`);
+        }
+
+        async function deleteMovie(movieId) {
+            if (confirm('Are you sure you want to delete this movie?')) {
+                showMessage(`Delete movie functionality would be implemented for movie ID: ${movieId}`);
+            }
+        }
+
+        function manageSeats() {
+            showMessage('Seat management functionality would be implemented here.');
+        }
+
+        function loadCancellations() {
+            showMessage('Loading cancellations...');
+            loadBookings();
+        }
+
+        function exportData() {
+            showMessage('Export functionality would be implemented here.');
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide all forms initially
+            document.querySelectorAll('.form-container').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            // Initialize dashboard
+            initializeDashboard();
+        });
+
+        // Auto-refresh stats every 5 minutes
+        setInterval(() => {
+            loadStats();
+        }, 300000);
+    </script>
+    {% csrf_token %} <!-- Ensures Django sets the CSRF cookie -->
+
+<button id="testBtn">Send Test Request</button>
+
+    <script>
+        // Get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        // Example: send request when button clicked
+        document.getElementById("testBtn").addEventListener("click", function() {
+            fetch('/api/users/', { // change to your actual DRF endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'testuser',
+                    password: 'testpass123'
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(err => console.error("Error:", err));
+        });
+    </script>
+</body>
+
+</html>

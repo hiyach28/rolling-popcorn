@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/booking/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <section class="page-header">
+            <h1 class="section-title">My Bookings</h1>
+            <p class="section-subtitle">View and manage your movie ticket bookings</p>
+        </section>
+
+        <!-- Booking Filters -->
+        <section class="booking-filters">
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterBookings('all')">All Bookings</button>
+                <button class="filter-tab" onclick="filterBookings('upcoming')">Upcoming</button>
+                <button class="filter-tab" onclick="filterBookings('past')">Past</button>
+                <button class="filter-tab" onclick="filterBookings('cancelled')">Cancelled</button>
+            </div>
+        </section>
+
+        <!-- Bookings Container -->
+        <section class="bookings-container">
+            <!-- Bookings will be loaded here dynamically -->
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        let allBookings = [];
+        let currentFilter = 'all';
+
+        // Initialize booking page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const isAuthenticated = await checkAuthStatus();
+            if (!isAuthenticated) {
+                showMessage('Please login to view your bookings', 'warning');
+                window.location.href = '/login/';
+                return;
+            }
+            
+            await loadUserBookings();
+        });
+
+        // Filter bookings
+        function filterBookings(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter and display bookings
+            const filteredBookings = filterBookingsByType(allBookings, filter);
+            displayUserBookings(filteredBookings);
+        }
+
+        // Filter bookings by type
+        function filterBookingsByType(bookings, filter) {
+            const now = new Date();
+            
+            switch (filter) {
+                case 'upcoming':
+                    return bookings.filter(booking => {
+                        const showTime = new Date(booking.show.show_time);
+                        return showTime > now && booking.status === 'confirmed';
+                    });
+                case 'past':
+                    return bookings.filter(booking => {
+                        const showTime = new Date(booking.show.show_time);
+                        return showTime <= now && booking.status === 'confirmed';
+                    });
+                case 'cancelled':
+                    return bookings.filter(booking => booking.status === 'cancelled');
+                default:
+                    return bookings;
+            }
+        }
+
+        // Enhanced display function for filtered bookings
+        function displayUserBookings(bookings) {
+            const bookingsContainer = document.querySelector('.bookings-container');
+            if (!bookingsContainer) return;
+
+            if (!bookings || bookings.length === 0) {
+                const filterText = currentFilter === 'all' ? 'bookings' : currentFilter + ' bookings';
+                bookingsContainer.innerHTML = `
+                    <div class="no-bookings">
+                        <h3>No ${filterText} found</h3>
+                        <p>${currentFilter === 'all' ? 'Start by booking a movie ticket!' : `You don't have any ${currentFilter} bookings.`}</p>
+                        ${currentFilter === 'all' ? '<a href="/" class="btn btn-primary">Browse Movies</a>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            bookingsContainer.innerHTML = bookings.map(booking => {
+                const showTime = new Date(booking.show.show_time);
+                const now = new Date();
+                const isUpcoming = showTime > now;
+                const isPast = showTime <= now;
+                
+                return `
+                    <div class="booking-card ${booking.status} ${isUpcoming ? 'upcoming' : isPast ? 'past' : ''}">
+                        <div class="booking-header">
+                            <h3>${booking.show.movie.title || booking.show.movie.name}</h3>
+                            <span class="booking-status ${booking.status}">${booking.status}</span>
+                        </div>
+                        <div class="booking-details">
+                            <div class="booking-info">
+                                <div class="info-row">
+                                    <span class="info-label">Theater:</span>
+                                    <span class="info-value">${booking.show.theater_name || ''}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Screen:</span>
+                                    <span class="info-value">${booking.show.screen_number || ''}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Show Time:</span>
+                                    <span class="info-value">${formatShowTime(booking.show.show_time)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Seats:</span>
+                                    <span class="info-value">${booking.booked_seats.map(seat => seat.seat_number).join(', ')}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Total Amount:</span>
+                                    <span class="info-value">₹${booking.total_amount || booking.total_price}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Booking Date:</span>
+                                    <span class="info-value">${new Date(booking.booking_time).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <div class="booking-actions">
+                                ${booking.status === 'confirmed' && isUpcoming ? 
+                                    `<button class="btn btn-danger" onclick="cancelBooking(${booking.id})">Cancel Booking</button>` : 
+                                    ''
+                                }
+                                <button class="btn btn-primary" onclick="viewTicket(${booking.id})">View Ticket</button>
+                                ${isPast && booking.status === 'confirmed' ? 
+                                    `<button class="btn btn-secondary" onclick="writeReview(${booking.show.movie.id})">Write Review</button>` : 
+                                    ''
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Format show time
+        function formatShowTime(showTime) {
+            const date = new Date(showTime);
+            return date.toLocaleString('en-IN', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Write review for a movie
+        function writeReview(movieId) {
+            window.location.href = `/movie/${movieId}/?writeReview=true`;
+        }
+
+        // Override the loadUserBookings function to store all bookings
+        const originalLoadUserBookings = window.loadUserBookings;
+        window.loadUserBookings = async function() {
+            showLoading('Loading your bookings...');
+            
+            try {
+                const bookings = await apiCall('/bookings/');
+                if (bookings) {
+                    allBookings = bookings;
+                    displayUserBookings(filterBookingsByType(bookings, currentFilter));
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                showMessage('Failed to load bookings', 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/booking/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Movie Details Section -->
+        <section class="movie-detail">
+            <!-- Movie details will be loaded here dynamically -->
+        </section>
+
+        <!-- Shows Section -->
+        <section class="shows-section">
+            <h2 class="section-title">Available Shows</h2>
+            <p class="section-subtitle">Select a show time to book your tickets</p>
+            
+            <!-- Show filters -->
+            <div class="show-filters">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cityFilter" class="form-label">City</label>
+                        <select id="cityFilter" class="form-control" onchange="filterShows()">
+                            <option value="">All Cities</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Bangalore">Bangalore</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Kolkata">Kolkata</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateFilter" class="form-label">Date</label>
+                        <input type="date" id="dateFilter" class="form-control" onchange="filterShows()">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shows grid -->
+            <div class="shows-grid">
+                <!-- Shows will be loaded here dynamically -->
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="reviews-section">
+            <!-- Reviews will be loaded here dynamically -->
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        // Filter shows based on selected criteria
+        function filterShows() {
+            const city = document.getElementById('cityFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            const movieId = getUrlParameter('id') || window.location.pathname.split('/')[2];
+            if (movieId) {
+                const filters = {};
+                if (city) filters.theater_city = city;
+                if (date) filters.show_date = date;
+                
+                loadMovieShows(movieId, filters);
+            }
+        }
+
+        // Initialize movie details page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthStatus();
+            
+            const movieId = getUrlParameter('id') || window.location.pathname.split('/')[2];
+            if (movieId) {
+                await loadMovieDetails(movieId);
+            } else {
+                showMessage('Movie not found', 'error');
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

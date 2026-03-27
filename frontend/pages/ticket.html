@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket - Rolling Popcorn</title>
+    <link rel="stylesheet" href="/frontend/assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn">
+                <h1>Rolling Popcorn</h1>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/movies/">Movies</a>
+                <a href="/booking/">My Bookings</a>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Guest</div>
+                    <div class="user-role">Please Login</div>
+                </div>
+                <a href="/login/" class="btn btn-sm">Login</a>
+                <a href="/register/" class="btn btn-sm">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Success Message -->
+        <section class="success-message">
+            <div class="success-card">
+                <div class="success-icon">✅</div>
+                <h2>Booking Confirmed!</h2>
+                <p>Your movie ticket has been booked successfully. You will receive a confirmation email shortly.</p>
+            </div>
+        </section>
+
+        <!-- Ticket Section -->
+        <section class="ticket-section">
+            <div class="ticket">
+                <div class="ticket-header">
+                    <img src="/frontend/assets/images/logos/rollingpopcornlogo.png" alt="Rolling Popcorn" class="ticket-logo">
+                    <h1>Movie Ticket</h1>
+                </div>
+                
+                <div class="ticket-details">
+                    <!-- Ticket details will be loaded here dynamically -->
+                </div>
+                
+                <div class="ticket-seats">
+                    <!-- Seat information will be loaded here -->
+                </div>
+                
+                <div class="ticket-qr">
+                    <div class="qr-code">
+                        <!-- QR code placeholder -->
+                        <div class="qr-placeholder">
+                            <span>QR Code</span>
+                            <small>Scan at theater</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ticket-footer">
+                    <p>Please arrive 15 minutes before show time</p>
+                    <p>Show this ticket at the theater entrance</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="ticket-actions">
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="downloadTicket()">Download Ticket</button>
+                <button class="btn btn-secondary" onclick="printTicket()">Print Ticket</button>
+                <a href="/booking/" class="btn btn-secondary">View All Bookings</a>
+                <a href="/" class="btn btn-primary">Book More Tickets</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: var(--dark-gray); padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div class="container">
+            <p>&copy; 2024 Rolling Popcorn. All rights reserved.</p>
+            <p>Experience the magic of cinema with us.</p>
+        </div>
+    </footer>
+
+    <script src="/frontend/assets/js/app.js"></script>
+    <script>
+        let ticketData = null;
+
+        // Initialize ticket page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthStatus();
+            
+            const bookingId = getUrlParameter('booking');
+            if (bookingId) {
+                await loadTicketDetails(bookingId);
+            } else {
+                showMessage('Booking not found', 'error');
+                window.location.href = '/booking/';
+            }
+        });
+
+        // Load ticket details
+        async function loadTicketDetails(bookingId) {
+            showLoading('Loading ticket details...');
+            
+            try {
+                const booking = await apiCall(`/bookings/${bookingId}/`);
+                if (booking) {
+                    ticketData = booking;
+                    displayTicketDetails(booking);
+                }
+            } catch (error) {
+                console.error('Error loading ticket details:', error);
+                showMessage('Failed to load ticket details', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display ticket details
+        function displayTicketDetails(booking) {
+            const ticketDetails = document.querySelector('.ticket-details');
+            const ticketSeats = document.querySelector('.ticket-seats');
+            
+            if (!ticketDetails || !ticketSeats) return;
+
+            // Display ticket details
+            ticketDetails.innerHTML = `
+                <div class="ticket-detail">
+                    <h3>Movie</h3>
+                    <p>${booking.show.movie_title || booking.show.movie}</p>
+                </div>
+                <div class="ticket-detail">
+                    <h3>Theater</h3>
+                    <p>${booking.show.theater_name || ''}</p>
+                </div>
+                <div class="ticket-detail">
+                    <h3>Screen</h3>
+                    <p>${booking.show.screen_number || ''}</p>
+                </div>
+                <div class="ticket-detail">
+                    <h3>Show Time</h3>
+                    <p>${formatShowTime(booking.show.show_time)}</p>
+                </div>
+                <div class="ticket-detail">
+                    <h3>Booking ID</h3>
+                    <p>${booking.id}</p>
+                </div>
+                <div class="ticket-detail">
+                    <h3>Booking Date</h3>
+                    <p>${new Date(booking.booking_time).toLocaleDateString()}</p>
+                </div>
+                <div class="ticket-detail">
+                    <h3>Total Amount</h3>
+                    <p>₹${booking.total_amount || booking.total_price}</p>
+                </div>
+            `;
+
+            // Display seat information
+            ticketSeats.innerHTML = `
+                <h3>Seats</h3>
+                <div class="seat-list">
+                    ${booking.booked_seats.map(seat => `
+                        <span class="seat-badge">${seat.seat_number}</span>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Format show time
+        function formatShowTime(showTime) {
+            const date = new Date(showTime);
+            return date.toLocaleString('en-IN', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Download ticket
+        function downloadTicket() {
+            if (!ticketData) {
+                showMessage('No ticket data available', 'error');
+                return;
+            }
+            
+            // Create a printable version of the ticket
+            const ticketContent = createTicketContent();
+            const blob = new Blob([ticketContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ticket-${ticketData.id}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('Ticket downloaded successfully', 'success');
+        }
+
+        // Print ticket
+        function printTicket() {
+            if (!ticketData) {
+                showMessage('No ticket data available', 'error');
+                return;
+            }
+            
+            const ticketContent = createTicketContent();
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(ticketContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Create ticket content for download/print
+        function createTicketContent() {
+            if (!ticketData) return '';
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Movie Ticket - ${ticketData.show.movie.title || ticketData.show.movie.name}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                        .ticket { border: 2px solid #cc1e36; padding: 20px; max-width: 400px; margin: 0 auto; }
+                        .ticket-header { text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
+                        .ticket-detail { margin-bottom: 15px; }
+                        .ticket-detail h3 { margin: 0; color: #cc1e36; font-size: 14px; }
+                        .ticket-detail p { margin: 5px 0; font-size: 16px; font-weight: bold; }
+                        .seat-list { margin-top: 10px; }
+                        .seat-badge { background: #cc1e36; color: white; padding: 5px 10px; margin: 2px; border-radius: 15px; display: inline-block; }
+                        .qr-placeholder { border: 1px solid #ccc; padding: 20px; text-align: center; margin: 20px 0; }
+                        @media print { body { margin: 0; } .ticket { border: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="ticket">
+                        <div class="ticket-header">
+                            <h1>Rolling Popcorn - Movie Ticket</h1>
+                        </div>
+                        <div class="ticket-detail">
+                            <h3>Movie</h3>
+                            <p>${ticketData.show.movie_title || ticketData.show.movie}</p>
+                        </div>
+                        <div class="ticket-detail">
+                            <h3>Theater</h3>
+                            <p>${ticketData.show.theater_name || ''}</p>
+                        </div>
+                        <div class="ticket-detail">
+                            <h3>Screen</h3>
+                            <p>${ticketData.show.screen_number || ''}</p>
+                        </div>
+                        <div class="ticket-detail">
+                            <h3>Show Time</h3>
+                            <p>${formatShowTime(ticketData.show.show_time)}</p>
+                        </div>
+                        <div class="ticket-detail">
+                            <h3>Booking ID</h3>
+                            <p>${ticketData.id}</p>
+                        </div>
+                        <div class="ticket-detail">
+                            <h3>Seats</h3>
+                            <div class="seat-list">
+                                ${ticketData.booked_seats.map(seat => `
+                                    <span class="seat-badge">${seat.seat_number}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="qr-placeholder">
+                            <div>QR Code</div>
+                            <small>Scan at theater</small>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+                            <p>Please arrive 15 minutes before show time</p>
+                            <p>Show this ticket at the theater entrance</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+    </script>
+</body>
+</html>

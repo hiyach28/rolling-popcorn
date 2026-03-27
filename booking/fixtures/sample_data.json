@@ -1,0 +1,169 @@
+[
+  {"model": "booking.genre", "pk": 1, "fields": {"name": "Action"}},
+  {"model": "booking.genre", "pk": 2, "fields": {"name": "Adventure"}},
+  {"model": "booking.genre", "pk": 3, "fields": {"name": "Sci-Fi"}},
+  {"model": "booking.genre", "pk": 4, "fields": {"name": "Drama"}},
+  {"model": "booking.genre", "pk": 5, "fields": {"name": "Comedy"}},
+  {"model": "booking.genre", "pk": 6, "fields": {"name": "Thriller"}},
+  {"model": "booking.genre", "pk": 7, "fields": {"name": "Romance"}},
+  {"model": "booking.genre", "pk": 8, "fields": {"name": "Animation"}},
+
+  {
+    "model": "booking.movie", "pk": 1,
+    "fields": {
+      "name": "Superman",
+      "description": "The Man of Steel returns to protect Earth from a new cosmic threat that challenges everything he stands for.",
+      "duration": 143, "language": "English", "release_date": "2025-07-11", "poster": "",
+      "poster_url": "/frontend/assets/images/movie/superman.jpg",
+      "genres": [1, 2]
+    }
+  },
+  {
+    "model": "booking.movie", "pk": 2,
+    "fields": {
+      "name": "Jurassic World Rebirth",
+      "description": "Five years after the fall of Biosyn, a covert mission into the most dangerous place on Earth uncovers a secret that changes everything.",
+      "duration": 130, "language": "English", "release_date": "2025-07-02", "poster": "",
+      "poster_url": "/frontend/assets/images/movie/jurassicworld.jpg",
+      "genres": [1, 3]
+    }
+  },
+  {
+    "model": "booking.movie", "pk": 3,
+    "fields": {
+      "name": "The Fantastic Four: First Steps",
+      "description": "Marvel's first family arrives in the MCU, facing a villain from another dimension who threatens the multiverse.",
+      "duration": 125, "language": "English", "release_date": "2025-07-25", "poster": "",
+      "poster_url": "/frontend/assets/images/movie/fantasticfour.jpg",
+      "genres": [1, 2]
+    }
+  },
+  {
+    "model": "booking.movie", "pk": 4,
+    "fields": {
+      "name": "The Bad Guys 2",
+      "description": "The reformed Bad Guys are back, but this time they must go undercover to stop the biggest heist in history.",
+      "duration": 100, "language": "English", "release_date": "2025-08-01", "poster": "",
+      "poster_url": "/frontend/assets/images/movie/badguys.jpg",
+      "genres": [8, 5]
+    }
+  },
+  {
+    "model": "booking.movie", "pk": 5,
+    "fields": {
+      "name": "Saiyaara",
+      "description": "A sweeping love story set across Mumbai and the mountains of Kashmir, following two strangers bound by fate.",
+      "duration": 155, "language": "Hindi", "release_date": "2025-07-18", "poster": "",
+      "poster_url": "/frontend/assets/images/movie/saiyaara.jpg",
+      "genres": [7, 4]
+    }
+  },
+  {
+    "model": "booking.movie", "pk": 6,
+    "fields": {
+      "name": "F1",
+      "description": "A retired Formula 1 driver returns to the grid as a mentor, only to find himself racing for his life and legacy.",
+      "duration": 138, "language": "English", "release_date": "2025-06-27", "poster": "",
+      "poster_url": "/frontend/assets/images/movie/f1.jpg",
+      "genres": [1, 4]
+    }
+  },
+
+  {
+    "model": "booking.theater", "pk": 1,
+    "fields": {"name": "PVR Juhu", "location": "Juhu, Mumbai", "city": "Mumbai", "total_screens": 3}
+  },
+  {
+    "model": "booking.theater", "pk": 2,
+    "fields": {"name": "INOX Connaught Place", "location": "Connaught Place, Delhi", "city": "Delhi", "total_screens": 2}
+  },
+  {
+    "model": "booking.theater", "pk": 3,
+    "fields": {"name": "Cinepolis Koramangala", "location": "Koramangala, Bengaluru", "city": "Bengaluru", "total_screens": 2}
+  },
+
+  {"model": "booking.screen", "pk": 1, "fields": {"theater": 1, "screen_number": "1", "seat_layout": {}}},
+  {"model": "booking.screen", "pk": 2, "fields": {"theater": 1, "screen_number": "2", "seat_layout": {}}},
+  {"model": "booking.screen", "pk": 3, "fields": {"theater": 1, "screen_number": "3", "seat_layout": {}}},
+  {"model": "booking.screen", "pk": 4, "fields": {"theater": 2, "screen_number": "1", "seat_layout": {}}},
+  {"model": "booking.screen", "pk": 5, "fields": {"theater": 2, "screen_number": "2", "seat_layout": {}}},
+  {"model": "booking.screen", "pk": 6, "fields": {"theater": 3, "screen_number": "1", "seat_layout": {}}},
+  {"model": "booking.screen", "pk": 7, "fields": {"theater": 3, "screen_number": "2", "seat_layout": {}}},
+
+  {"model": "booking.seat", "pk": 1,  "fields": {"screen": 1, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 2,  "fields": {"screen": 1, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 3,  "fields": {"screen": 1, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 4,  "fields": {"screen": 1, "seat_number": "A4"}},
+  {"model": "booking.seat", "pk": 5,  "fields": {"screen": 1, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 6,  "fields": {"screen": 1, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 7,  "fields": {"screen": 1, "seat_number": "B3"}},
+  {"model": "booking.seat", "pk": 8,  "fields": {"screen": 1, "seat_number": "B4"}},
+  {"model": "booking.seat", "pk": 9,  "fields": {"screen": 1, "seat_number": "C1"}},
+  {"model": "booking.seat", "pk": 10, "fields": {"screen": 1, "seat_number": "C2"}},
+  {"model": "booking.seat", "pk": 11, "fields": {"screen": 1, "seat_number": "C3"}},
+  {"model": "booking.seat", "pk": 12, "fields": {"screen": 1, "seat_number": "C4"}},
+
+  {"model": "booking.seat", "pk": 13, "fields": {"screen": 2, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 14, "fields": {"screen": 2, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 15, "fields": {"screen": 2, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 16, "fields": {"screen": 2, "seat_number": "A4"}},
+  {"model": "booking.seat", "pk": 17, "fields": {"screen": 2, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 18, "fields": {"screen": 2, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 19, "fields": {"screen": 2, "seat_number": "B3"}},
+  {"model": "booking.seat", "pk": 20, "fields": {"screen": 2, "seat_number": "B4"}},
+
+  {"model": "booking.seat", "pk": 21, "fields": {"screen": 3, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 22, "fields": {"screen": 3, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 23, "fields": {"screen": 3, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 24, "fields": {"screen": 3, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 25, "fields": {"screen": 3, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 26, "fields": {"screen": 3, "seat_number": "B3"}},
+
+  {"model": "booking.seat", "pk": 27, "fields": {"screen": 4, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 28, "fields": {"screen": 4, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 29, "fields": {"screen": 4, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 30, "fields": {"screen": 4, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 31, "fields": {"screen": 4, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 32, "fields": {"screen": 4, "seat_number": "B3"}},
+
+  {"model": "booking.seat", "pk": 33, "fields": {"screen": 5, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 34, "fields": {"screen": 5, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 35, "fields": {"screen": 5, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 36, "fields": {"screen": 5, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 37, "fields": {"screen": 5, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 38, "fields": {"screen": 5, "seat_number": "B3"}},
+
+  {"model": "booking.seat", "pk": 39, "fields": {"screen": 6, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 40, "fields": {"screen": 6, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 41, "fields": {"screen": 6, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 42, "fields": {"screen": 6, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 43, "fields": {"screen": 6, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 44, "fields": {"screen": 6, "seat_number": "B3"}},
+
+  {"model": "booking.seat", "pk": 45, "fields": {"screen": 7, "seat_number": "A1"}},
+  {"model": "booking.seat", "pk": 46, "fields": {"screen": 7, "seat_number": "A2"}},
+  {"model": "booking.seat", "pk": 47, "fields": {"screen": 7, "seat_number": "A3"}},
+  {"model": "booking.seat", "pk": 48, "fields": {"screen": 7, "seat_number": "B1"}},
+  {"model": "booking.seat", "pk": 49, "fields": {"screen": 7, "seat_number": "B2"}},
+  {"model": "booking.seat", "pk": 50, "fields": {"screen": 7, "seat_number": "B3"}},
+
+  {"model": "booking.show", "pk": 1,  "fields": {"movie": 1, "screen": 1, "show_time": "2026-03-28T10:00:00Z", "price_per_seat": "250.00"}},
+  {"model": "booking.show", "pk": 2,  "fields": {"movie": 1, "screen": 1, "show_time": "2026-03-28T14:00:00Z", "price_per_seat": "300.00"}},
+  {"model": "booking.show", "pk": 3,  "fields": {"movie": 1, "screen": 1, "show_time": "2026-03-28T18:00:00Z", "price_per_seat": "350.00"}},
+  {"model": "booking.show", "pk": 4,  "fields": {"movie": 2, "screen": 2, "show_time": "2026-03-28T11:00:00Z", "price_per_seat": "280.00"}},
+  {"model": "booking.show", "pk": 5,  "fields": {"movie": 2, "screen": 2, "show_time": "2026-03-28T16:00:00Z", "price_per_seat": "280.00"}},
+  {"model": "booking.show", "pk": 6,  "fields": {"movie": 3, "screen": 3, "show_time": "2026-03-28T12:00:00Z", "price_per_seat": "320.00"}},
+  {"model": "booking.show", "pk": 7,  "fields": {"movie": 3, "screen": 3, "show_time": "2026-03-28T19:00:00Z", "price_per_seat": "320.00"}},
+  {"model": "booking.show", "pk": 8,  "fields": {"movie": 4, "screen": 4, "show_time": "2026-03-28T10:30:00Z", "price_per_seat": "200.00"}},
+  {"model": "booking.show", "pk": 9,  "fields": {"movie": 4, "screen": 4, "show_time": "2026-03-28T15:00:00Z", "price_per_seat": "200.00"}},
+  {"model": "booking.show", "pk": 10, "fields": {"movie": 5, "screen": 6, "show_time": "2026-03-28T13:00:00Z", "price_per_seat": "260.00"}},
+  {"model": "booking.show", "pk": 11, "fields": {"movie": 5, "screen": 6, "show_time": "2026-03-28T17:00:00Z", "price_per_seat": "260.00"}},
+  {"model": "booking.show", "pk": 12, "fields": {"movie": 6, "screen": 5, "show_time": "2026-03-28T11:30:00Z", "price_per_seat": "300.00"}},
+  {"model": "booking.show", "pk": 13, "fields": {"movie": 6, "screen": 5, "show_time": "2026-03-28T20:00:00Z", "price_per_seat": "350.00"}},
+  {"model": "booking.show", "pk": 14, "fields": {"movie": 1, "screen": 1, "show_time": "2026-03-29T10:00:00Z", "price_per_seat": "250.00"}},
+  {"model": "booking.show", "pk": 15, "fields": {"movie": 2, "screen": 2, "show_time": "2026-03-29T14:00:00Z", "price_per_seat": "280.00"}},
+  {"model": "booking.show", "pk": 16, "fields": {"movie": 3, "screen": 4, "show_time": "2026-03-29T18:00:00Z", "price_per_seat": "320.00"}},
+  {"model": "booking.show", "pk": 17, "fields": {"movie": 5, "screen": 6, "show_time": "2026-03-29T20:00:00Z", "price_per_seat": "260.00"}},
+  {"model": "booking.show", "pk": 18, "fields": {"movie": 6, "screen": 7, "show_time": "2026-03-29T12:00:00Z", "price_per_seat": "300.00"}},
+  {"model": "booking.show", "pk": 19, "fields": {"movie": 4, "screen": 5, "show_time": "2026-03-29T16:00:00Z", "price_per_seat": "200.00"}}
+]
