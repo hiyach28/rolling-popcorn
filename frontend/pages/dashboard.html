@@ -148,11 +148,7 @@
             showLoading('Loading dashboard...');
             
             try {
-                const stats = await apiCall('/api/dashboard/stats/');
-                if (stats) {
-                    displayStats(stats);
-                }
-                
+                // Load recent bookings via the existing bookings endpoint
                 await loadRecentActivity();
             } catch (error) {
                 console.error('Error loading dashboard:', error);
@@ -173,11 +169,20 @@
         // Load recent activity
         async function loadRecentActivity() {
             try {
-                const bookings = await apiCall('/api/dashboard/bookings/');
+                const bookings = await apiCall('/bookings/');
                 if (bookings && bookings.length > 0) {
-                    displayRecentActivity(bookings.slice(0, 5)); // Show last 5 bookings
+                    displayRecentActivity(bookings.slice(0, 5));
+                    // Update stats from bookings data
+                    document.getElementById('totalBookings').textContent = bookings.length;
+                    const revenue = bookings.reduce((sum, b) => sum + parseFloat(b.total_amount || b.total_price || 0), 0);
+                    document.getElementById('totalRevenue').textContent = `₹${revenue.toFixed(2)}`;
+                    document.getElementById('totalShows').textContent = '-';
+                    document.getElementById('occupancyRate').textContent = '-';
                 } else {
                     displayRecentActivity([]);
+                    ['totalShows','totalBookings','totalRevenue','occupancyRate'].forEach(id => {
+                        document.getElementById(id).textContent = '0';
+                    });
                 }
             } catch (error) {
                 console.error('Error loading recent activity:', error);
@@ -203,8 +208,8 @@
                 <div class="activity-item">
                     <div class="activity-icon">🎫</div>
                     <div class="activity-content">
-                        <h4>${booking.show.movie.title || booking.show.movie.name}</h4>
-                        <p>Booking by ${booking.user.username} - ${booking.booked_seats.length} seats</p>
+                        <h4>${booking.show.movie_title || booking.show.movie}</h4>
+                        <p>Booking by ${booking.user_name || booking.user} - ${booking.booked_seats.length} seats</p>
                         <small>${new Date(booking.booking_time).toLocaleString()}</small>
                     </div>
                     <div class="activity-status ${booking.status}">

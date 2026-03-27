@@ -17,5 +17,5 @@ media/
 # VSCode
 .vscode/
 
-
-#superuser-> email: admin@gmail.com, username: hiya, password: 123
+# Environment variables (never commit this)
+.env

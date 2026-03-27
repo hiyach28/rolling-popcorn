@@ -67,7 +67,7 @@ class Seat(models.Model):
         unique_together = ['screen', 'seat_number']
     
      def __str__(self):
-        return f"{self.screen} - Seat {self.seat_number} ({self.seat_type})"
+        return f"{self.screen} - Seat {self.seat_number}"
      
 class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -84,7 +84,8 @@ class Movie(models.Model):
     description = models.TextField(null=True, blank=True)  # Optional field for movie description
     genres = models.ManyToManyField(Genre, related_name='movies')
     duration = models.IntegerField(null=False)  # Duration in minutes
-    poster = models.ImageField(upload_to='posters/', blank=True)  
+    poster = models.ImageField(upload_to='posters/', blank=True)
+    poster_url = models.URLField(max_length=500, blank=True, null=True)  # External poster URL
     language = models.CharField(max_length=50, null=False)
     release_date = models.DateField(null=False)
     # status = models.BooleanField(choices = STATUS, default=1)  # True if movie is active, False if inactive
@@ -129,7 +130,7 @@ class Show(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.movie.title} - {self.screen} at {self.show_time}"
+        return f"{self.movie.name} - {self.screen} at {self.show_time}"
     
     @property
     def available_seats(self):
@@ -160,8 +161,8 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     id = models.AutoField(primary_key=True)
-    user = models.IntegerField(null=False)  # Assuming user_id is an integer representing the user's ID
-    show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name='bookings')  # show can access booking using keyword 'bookings' eg obj.booking
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings', null=False)
+    show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name='bookings')
     booking_time = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=False)  # Total price for the bookin
     status = models.CharField(max_length=10, choices = STATUS, default='confirmed')  # True if booking is confirmed, False if cancelled
@@ -203,8 +204,12 @@ class Review(models.Model):
     rating = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     ) # Rating out of 5
-    comment = models.TextField(null=True, blank=True)  # Optional field for review comment
+    review_text = models.TextField(null=True, blank=True)  # Optional field for review comment
     review_date = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def created_at(self):
+        return self.review_date
 
     class Meta:
         db_table = 'reviews'

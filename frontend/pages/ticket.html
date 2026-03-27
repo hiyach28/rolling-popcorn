@@ -139,15 +139,15 @@
             ticketDetails.innerHTML = `
                 <div class="ticket-detail">
                     <h3>Movie</h3>
-                    <p>${booking.show.movie.title || booking.show.movie.name}</p>
+                    <p>${booking.show.movie_title || booking.show.movie}</p>
                 </div>
                 <div class="ticket-detail">
                     <h3>Theater</h3>
-                    <p>${booking.show.screen.theater.name}</p>
+                    <p>${booking.show.theater_name || ''}</p>
                 </div>
                 <div class="ticket-detail">
                     <h3>Screen</h3>
-                    <p>${booking.show.screen.screen_number}</p>
+                    <p>${booking.show.screen_number || ''}</p>
                 </div>
                 <div class="ticket-detail">
                     <h3>Show Time</h3>
@@ -163,7 +163,7 @@
                 </div>
                 <div class="ticket-detail">
                     <h3>Total Amount</h3>
-                    <p>₹${booking.total_amount}</p>
+                    <p>₹${booking.total_amount || booking.total_price}</p>
                 </div>
             `;
 
@@ -172,7 +172,7 @@
                 <h3>Seats</h3>
                 <div class="seat-list">
                     ${booking.booked_seats.map(seat => `
-                        <span class="seat-badge">${seat.seat.seat_number}</span>
+                        <span class="seat-badge">${seat.seat_number}</span>
                     `).join('')}
                 </div>
             `;
@@ -256,15 +256,15 @@
                         </div>
                         <div class="ticket-detail">
                             <h3>Movie</h3>
-                            <p>${ticketData.show.movie.title || ticketData.show.movie.name}</p>
+                            <p>${ticketData.show.movie_title || ticketData.show.movie}</p>
                         </div>
                         <div class="ticket-detail">
                             <h3>Theater</h3>
-                            <p>${ticketData.show.screen.theater.name}</p>
+                            <p>${ticketData.show.theater_name || ''}</p>
                         </div>
                         <div class="ticket-detail">
                             <h3>Screen</h3>
-                            <p>${ticketData.show.screen.screen_number}</p>
+                            <p>${ticketData.show.screen_number || ''}</p>
                         </div>
                         <div class="ticket-detail">
                             <h3>Show Time</h3>
@@ -278,7 +278,7 @@
                             <h3>Seats</h3>
                             <div class="seat-list">
                                 ${ticketData.booked_seats.map(seat => `
-                                    <span class="seat-badge">${seat.seat.seat_number}</span>
+                                    <span class="seat-badge">${seat.seat_number}</span>
                                 `).join('')}
                             </div>
                         </div>

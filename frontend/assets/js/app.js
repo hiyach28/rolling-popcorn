@@ -184,12 +184,12 @@ function updateUserMenu() {
     }
 }
 
-async function login(email, password) {
+async function login(username, password) {
     showLoading('Logging in...');
     
     try {
         const response = await apiCall('/auth/login/', 'POST', {
-            email: email,
+            username: username,
             password: password
         }, false);
         
@@ -304,10 +304,10 @@ function displayMovies(movies) {
     movieGrid.innerHTML = movies.map(movie => `
         <div class="movie-card" onclick="viewMovie(${movie.id})">
             <div class="movie-poster-container">
-                <img src="${movie.poster_url || '/frontend/assets/default-movie.jpg'}" 
+                <img src="${movie.poster_url || movie.poster || 'https://via.placeholder.com/300x450?text=No+Poster'}" 
                      alt="${movie.title || movie.name}" 
                      class="movie-poster"
-                     onerror="this.src='/frontend/assets/default-movie.jpg'">
+                     onerror="this.src='https://via.placeholder.com/300x450?text=No+Poster'">
                 <div class="movie-overlay">
                     <button class="btn btn-primary">View Details</button>
                 </div>
@@ -375,10 +375,10 @@ function displayMovieDetails(movie) {
 
     movieDetailContainer.innerHTML = `
         <div class="movie-poster-section">
-            <img src="${movie.poster_url || '/frontend/assets/default-movie.jpg'}" 
+            <img src="${movie.poster_url || movie.poster || 'https://via.placeholder.com/300x450?text=No+Poster'}" 
                  alt="${movie.title || movie.name}" 
                  class="movie-poster-large"
-                 onerror="this.src='/frontend/assets/default-movie.jpg'">
+                 onerror="this.src='https://via.placeholder.com/300x450?text=No+Poster'">
         </div>
         <div class="movie-info-section">
             <h1 class="movie-title-large">${movie.title || movie.name}</h1>
@@ -451,11 +451,11 @@ function displayShows(shows) {
     showsContainer.innerHTML = shows.map(show => `
         <div class="show-card" onclick="selectShow(${show.id})">
             <div class="show-time">${formatShowTime(show.show_time)}</div>
-            <div class="show-theater">${show.screen.theater.name}</div>
-            <div class="show-screen">Screen ${show.screen.screen_number}</div>
+            <div class="show-theater">${show.theater_name || (show.screen && show.screen.theater ? show.screen.theater.name : '')}</div>
+            <div class="show-screen">Screen ${show.screen_number || (show.screen ? show.screen.screen_number : '')}</div>
             <div class="show-price">₹${show.price_per_seat}</div>
             <div class="show-availability">
-                ${show.available_seats || 0} seats available
+                ${show.available_seats_count || 0} seats available
             </div>
             <button class="btn btn-primary">Book Now</button>
         </div>
@@ -665,14 +665,14 @@ async function loadMovieReviews(movieId) {
     try {
         const reviews = await apiCall(`/movies/${movieId}/reviews/`);
         if (reviews) {
-            displayReviews(reviews);
+            displayReviews(reviews, movieId);
         }
     } catch (error) {
         console.error('Error loading reviews:', error);
     }
 }
 
-function displayReviews(reviews) {
+function displayReviews(reviews, movieId) {
     const reviewsContainer = document.querySelector('.reviews-section');
     if (!reviewsContainer) return;
 
@@ -687,11 +687,11 @@ function displayReviews(reviews) {
     const reviewsHTML = reviews.map(review => `
         <div class="review-item">
             <div class="review-header">
-                <div class="review-author">${review.user.username}</div>
+                <div class="review-author">${review.user_name || review.user}</div>
                 <div class="review-rating">⭐ ${review.rating}</div>
             </div>
             <div class="review-date">${new Date(review.created_at).toLocaleDateString()}</div>
-            <div class="review-text">${review.review_text}</div>
+            <div class="review-text">${review.review_text || ''}</div>
         </div>
     `).join('');
 
@@ -823,16 +823,16 @@ function displayUserBookings(bookings) {
     bookingsContainer.innerHTML = bookings.map(booking => `
         <div class="booking-card">
             <div class="booking-header">
-                <h3>${booking.show.movie.title || booking.show.movie.name}</h3>
+                <h3>${booking.show.movie_title || booking.show.movie}</h3>
                 <span class="booking-status ${booking.status}">${booking.status}</span>
             </div>
             <div class="booking-details">
                 <div class="booking-info">
-                    <p><strong>Theater:</strong> ${booking.show.screen.theater.name}</p>
-                    <p><strong>Screen:</strong> ${booking.show.screen.screen_number}</p>
+                    <p><strong>Theater:</strong> ${booking.show.theater_name || ''}</p>
+                    <p><strong>Screen:</strong> ${booking.show.screen_number || ''}</p>
                     <p><strong>Show Time:</strong> ${formatShowTime(booking.show.show_time)}</p>
-                    <p><strong>Seats:</strong> ${booking.booked_seats.map(seat => seat.seat.seat_number).join(', ')}</p>
-                    <p><strong>Total Amount:</strong> ₹${booking.total_amount}</p>
+                    <p><strong>Seats:</strong> ${booking.booked_seats.map(seat => seat.seat_number).join(', ')}</p>
+                    <p><strong>Total Amount:</strong> ₹${booking.total_amount || booking.total_price}</p>
                     <p><strong>Booking Date:</strong> ${new Date(booking.booking_time).toLocaleDateString()}</p>
                 </div>
                 <div class="booking-actions">

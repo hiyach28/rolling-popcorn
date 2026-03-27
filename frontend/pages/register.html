@@ -109,17 +109,17 @@
                 username: formData.get('username'),
                 phone: formData.get('phone'),
                 password: formData.get('password'),
-                confirm_password: formData.get('confirm_password')
+                password_confirm: formData.get('confirm_password')
             };
             
             // Validation
             if (!userData.first_name || !userData.last_name || !userData.email || 
-                !userData.username || !userData.phone || !userData.password || !userData.confirm_password) {
+                !userData.username || !userData.phone || !userData.password || !userData.password_confirm) {
                 showMessage('Please fill in all fields', 'error');
                 return;
             }
             
-            if (userData.password !== userData.confirm_password) {
+            if (userData.password !== userData.password_confirm) {
                 showMessage('Passwords do not match', 'error');
                 return;
             }

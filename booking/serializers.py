@@ -106,7 +106,7 @@ class MovieListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Movie
-        fields = ('id', 'name', 'duration', 'genres', 'poster', 'language', 'release_date', 'average_rating', 'total_reviews')
+        fields = ('id', 'name', 'duration', 'genres', 'poster', 'poster_url', 'language', 'release_date', 'average_rating', 'total_reviews')
 
 
 class MovieDetailSerializer(serializers.ModelSerializer):
@@ -121,11 +121,11 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = ('id', 'name', 'description', 'genres', 'language', 'duration', 
-                 'poster', 'release_date', 'average_rating', 
+                 'poster', 'poster_url', 'release_date', 'average_rating', 
                  'total_reviews', 'reviews')
     
     def get_reviews(self, obj):
-        recent_reviews = obj.reviews.select_related('user').order_by('-created_at')[:5]
+        recent_reviews = obj.reviews.select_related('user').order_by('-review_date')[:5]
         return ReviewSerializer(recent_reviews, many=True).data
 
 
@@ -144,7 +144,7 @@ class ShowListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Show
-        fields = ('id', 'movie', 'movie_title', 'screen', 'movie_duration'
+        fields = ('id', 'movie', 'movie_title', 'screen', 'movie_duration',
                  'theater_name', 'theater_city', 'screen_number', 
                  'show_time', 'price_per_seat', 'available_seats_count', 'total_seats')
     
@@ -258,10 +258,11 @@ class BookingSerializer(serializers.ModelSerializer):
     show = ShowListSerializer(read_only=True)
     booked_seats = BookedSeatSerializer(many=True, read_only=True)
     user_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    total_amount = serializers.DecimalField(source='total_price', max_digits=10, decimal_places=2, read_only=True)
     
     class Meta:
         model = Booking
-        fields = ('id', 'user', 'user_name', 'show', 'total_price', 
+        fields = ('id', 'user', 'user_name', 'show', 'total_price', 'total_amount',
                  'booking_time', 'status', 'booked_seats')
 
 
@@ -270,6 +271,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     Serializer for movie reviews and ratings.
     """
     user_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    created_at = serializers.DateTimeField(source='review_date', read_only=True)
     
     class Meta:
         model = Review

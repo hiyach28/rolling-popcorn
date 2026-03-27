@@ -29,6 +29,7 @@ def serve_frontend(request, page='index.html'):
         'register': 'register.html',
         'profile': 'profile.html',
         'dashboard': 'dashboard.html',
+        'theaters': 'theaters.html',
     }
     
     # Get the page name from the URL
@@ -97,3 +98,7 @@ def profile(request):
 def dashboard(request):
     """Serve the dashboard page."""
     return serve_frontend(request, 'dashboard')
+
+def theaters(request):
+    """Serve the theaters page."""
+    return serve_frontend(request, 'theaters')

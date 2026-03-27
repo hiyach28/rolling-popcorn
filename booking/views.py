@@ -123,7 +123,7 @@ class MovieListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['genres', 'language']
-    search_fields = ['title', 'description']
+    search_fields = ['name', 'description']
     ordering_fields = ['release_date', 'title']
     ordering = ['-release_date']
     
@@ -171,10 +171,15 @@ class ShowListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = super().get_queryset()
 
+        # Filter by movie
+        movie_id = self.request.query_params.get('movie')
+        if movie_id:
+            queryset = queryset.filter(movie_id=movie_id)
+
         # Filter by theater city (location)
         theater_city = self.request.query_params.get('theater_city')
         if theater_city:
-            queryset = queryset.filter(screen__theater__location__icontains=theater_city)
+            queryset = queryset.filter(screen__theater__city__icontains=theater_city)
 
         # Filter by exact show date
         show_date = self.request.query_params.get('show_date')
@@ -208,7 +213,7 @@ class ShowDetailView(generics.RetrieveAPIView):
 class BookingCreateView(generics.CreateAPIView):
     """
     API endpoint for creating new bookings.
-    Validates seat availability and creates booking with confirmation email.
+    Validates seat availability and creates booking.
     """
     serializer_class = BookingCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -216,26 +221,11 @@ class BookingCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
-        # Create booking
         booking = serializer.save()
-        
-        # Release seat locks after successful booking
-        show_id = request.data.get('show')
-        seat_ids = request.data.get('seat_ids', [])
-        
-        seat_manager = SeatLockManager(redis_client)
-        for seat_id in seat_ids:
-            seat_manager.release_seat(show_id, seat_id, request.user.id)
-        
-        # Send confirmation email asynchronously
-        send_booking_confirmation_email.delay(booking.id)
-        
-        # Return booking details
         booking_serializer = BookingSerializer(booking)
         return Response({
             'booking': booking_serializer.data,
-            'message': 'Booking created successfully. Confirmation email will be sent shortly.'
+            'message': 'Booking created successfully.'
         }, status=status.HTTP_201_CREATED)
 
 
@@ -313,7 +303,7 @@ class MovieReviewsView(generics.ListAPIView):
     
     def get_queryset(self):
         movie_id = self.kwargs['movie_id']
-        return Review.objects.filter(movie_id=movie_id).select_related('user').order_by('-created_at')
+        return Review.objects.filter(movie_id=movie_id).select_related('user').order_by('-review_date')
 
 
 class UserReviewsView(generics.ListAPIView):
@@ -324,7 +314,7 @@ class UserReviewsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        return Review.objects.filter(user=self.request.user).select_related('movie').order_by('-created_at')
+        return Review.objects.filter(user=self.request.user).select_related('movie').order_by('-review_date')
 
 
 # Admin-only views for managing content
